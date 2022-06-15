@@ -40,10 +40,10 @@ crawler.work = function ({ username, password, url, callback}) {
                 { jar: cj },
                 (err, res, body) => {
                     if (body.match("错误")) {
-                        callback("Login maimai.wahlap.com failed")
+                        callback("<h1>Login maimai.wahlap.com failed</h1>")
                         return
                     }
-                    callback("Success")
+                    callback("<h1>Success</h1>")
 
                     const fetch = (u, p, diff) => [diff].forEach((diff) => {
                         if (diff === 5) return
