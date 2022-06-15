@@ -14,6 +14,7 @@ app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
 
     if (!username || ! password) {
         serverRes.send("用户名或密码不能为空")
+        return
     }
 
     crawler.auth({
