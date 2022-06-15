@@ -92,7 +92,7 @@ function httpOptions(clientReq, clientRes) {
 proxyServer.on('connect', (clientReq, clientSocket, head) => {
   clientSocket.on('error', (e) => {
     console.log("client socket error: " + e);
-    serverSocket.end();
+    clientSocket.end();
   });
 
   var reqUrl = url.parse('https://' + clientReq.url);
