@@ -14,6 +14,7 @@ const whiteList = [
   "bakapiano.digital",
   "maimai.bakapiano.digital",
   "maimai.bakapiano.com",
+  "open.weixin.qq.com",
 ]
 
 function checkHostInWhiteList(target) {
@@ -30,7 +31,10 @@ function checkHostInWhiteList(target) {
 // handle http proxy requests
 function httpOptions(clientReq, clientRes) {
   var reqUrl = url.parse(clientReq.url);
-  if (!checkHostInWhiteList(reqUrl.host)) return
+  if (!checkHostInWhiteList(reqUrl.host)) {
+    clientRes.end('Check your proxy settings!');
+    return
+  }
 
   console.log('proxy for http request: ' + reqUrl.href);
 
@@ -43,11 +47,14 @@ function httpOptions(clientReq, clientRes) {
       const { username, password } = global.dict[key]
       delete global.dict[key]
 
-      crawler.work({ username, password, url: target })
+      crawler.work({ username, password, url: target , callback(msg){
+        clientRes.end(msg);
+      }})
     }
     catch (err) {
       console.log(err)
     }
+
     return
   }
 
@@ -81,7 +88,10 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
   var reqUrl = url.parse('https://' + clientReq.url);
   console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
 
-  if (!checkHostInWhiteList(reqUrl.host)) return
+  if (!checkHostInWhiteList(reqUrl.host)) {
+    clientSocket.end('Check your proxy settings!');
+    return
+  }
 
   var options = {
     port: reqUrl.port,

@@ -13,7 +13,7 @@ crawler.auth = function ({ callback }) {
     })
 }
 
-crawler.work = function ({ username, password, url }) {
+crawler.work = function ({ username, password, url, callback}) {
     const cj = request.jar();
 
     request.get(
@@ -39,6 +39,12 @@ crawler.work = function ({ username, password, url }) {
                 "https://maimai.wahlap.com/maimai-mobile/home/",
                 { jar: cj },
                 (err, res, body) => {
+                    if (body.match("错误")) {
+                        callback("Login maimai.wahlap.com failed")
+                        return
+                    }
+                    callback("Success")
+
                     const fetch = (u, p, diff) => [diff].forEach((diff) => {
                         if (diff === 5) return
                         request.get(
