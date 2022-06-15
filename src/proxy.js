@@ -33,7 +33,7 @@ function httpOptions(clientReq, clientRes) {
   var reqUrl = url.parse(clientReq.url);
   if (!checkHostInWhiteList(reqUrl.host)) {
     try {
-      clientRes.end('Check your proxy settings!');
+      clientRes.end();
     }
     catch (err) {
       console.log(err)
@@ -95,7 +95,7 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
 
   if (!checkHostInWhiteList(reqUrl.host)) {
     try {
-      clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+      clientSocket.end();
     }
     catch (err) {
       console.log(err)
