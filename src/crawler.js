@@ -63,15 +63,23 @@ crawler.work = function ({ username, password, url, callback}) {
                                         console.log(diff, "upload", u, body);
                                         fetch(u, p, diff + 1);
                                     },
-                                );
+                                ).on('error', function (e) {
+                                    console.error(`Request error: ${e.message}`);
+                                });
                             }
-                        );
+                        ).on('error', function (e) {
+                            console.error(`Request error: ${e.message}`);
+                        });
                     });
                     fetch(username, password, 0);
                 }
-            )
+            ).on('error', function (e) {
+                console.error(`Request error: ${e.message}`);
+            });
         }
-    )
+    ).on('error', function (e) {
+        console.error(`Request error: ${e.message}`);
+    });
 }
 
 
