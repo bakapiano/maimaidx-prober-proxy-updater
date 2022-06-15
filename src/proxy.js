@@ -30,6 +30,10 @@ function checkHostInWhiteList(target) {
 
 // handle http proxy requests
 function httpOptions(clientReq, clientRes) {
+  clientReq.on('error', (e) => {
+    console.log('client socket error: ' + e);
+  });
+
   var reqUrl = url.parse(clientReq.url);
   if (!checkHostInWhiteList(reqUrl.host)) {
     try {
@@ -77,19 +81,20 @@ function httpOptions(clientReq, clientRes) {
     res.pipe(clientRes);
   });
 
-  clientReq.pipe(serverConnection);
-
-  clientReq.on('error', (e) => {
-    console.log('client socket error: ' + e);
-  });
-
   serverConnection.on('error', (e) => {
     console.log('server connection error: ' + e);
   });
+
+  clientReq.pipe(serverConnection);
 }
 
 // handle https proxy requests (CONNECT method)
 proxyServer.on('connect', (clientReq, clientSocket, head) => {
+  clientSocket.on('error', (e) => {
+    console.log("client socket error: " + e);
+    serverSocket.end();
+  });
+
   var reqUrl = url.parse('https://' + clientReq.url);
   console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
 
@@ -118,11 +123,6 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
         serverSocket.pipe(clientSocket);
         clientSocket.pipe(serverSocket);
       });
-  });
-
-  clientSocket.on('error', (e) => {
-    console.log("client socket error: " + e);
-    serverSocket.end();
   });
 
   serverSocket.on('error', (e) => {
