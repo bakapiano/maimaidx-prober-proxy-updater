@@ -9,8 +9,6 @@ var app = express()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
-    console.log(serverReq.body)
-
     const username = serverReq.body.username
     const password = serverReq.body.password
 
@@ -25,8 +23,6 @@ app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
                 password,
             }
 
-            console.log(global.dict)
-            // serverRes.send(href)
             serverRes.redirect(href)
         }
     })

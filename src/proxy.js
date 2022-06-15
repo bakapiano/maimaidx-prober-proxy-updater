@@ -11,9 +11,12 @@ const whiteList = [
   "tgk-wcaime.wahlap.com",
   "localhost",
   "maimai.wahlap.com",
+  "bakapiano.digital",
 ]
 
 function checkHostInWhiteList(target) {
+  target = target.split(":")[0]
+  console.log(target)
   for (let host of whiteList) {
     if (target == host) {
       return true
@@ -32,12 +35,17 @@ function httpOptions(clientReq, clientRes) {
   if (reqUrl.href.startsWith("http://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx")) {
     console.log("Successfully hook auth request!")
 
-    const target = reqUrl.href.replace("http", "https")
-    const key = url.parse(target, true).query.r
-    const { username, password } = global.dict[key]
-    delete global.dict[key]
+    try {
+      const target = reqUrl.href.replace("http", "https")
+      const key = url.parse(target, true).query.r
+      const { username, password } = global.dict[key]
+      delete global.dict[key]
 
-    crawler.work({ username, password, url: target })
+      crawler.work({ username, password, url: target })
+    }
+    catch (err) {
+      console.log(err)
+    }
     return
   }
 

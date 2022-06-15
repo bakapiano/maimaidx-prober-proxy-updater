@@ -45,9 +45,6 @@ crawler.work = function ({ username, password, url }) {
                             'https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=' + diff,
                             { jar: cj },
                             (err, res, body) => {
-                                if (diff == 0) {
-                                    console.log(body)
-                                }
                                 // console.log(diff, body);
                                 // console.log(body.match("错误"));
                                 request.post(
