@@ -18,6 +18,7 @@ const whiteList = [
 ]
 
 function checkHostInWhiteList(target) {
+  if (!target) return false
   target = target.split(":")[0]
   console.log(target)
   for (let host of whiteList) {
