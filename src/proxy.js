@@ -12,6 +12,7 @@ const whiteList = [
   "localhost",
   "maimai.wahlap.com",
   "bakapiano.digital",
+  "maimai.bakapiano.digital",
 ]
 
 function checkHostInWhiteList(target) {
