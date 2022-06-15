@@ -54,7 +54,7 @@ crawler.work = function ({ username, password, url }) {
                                         body: "<login><u>" + u + "</u><p>" + p + "</p></login>" + body.match(/<html.*>([\s\S]*)<\/html>/)[1].replace(/\s+/g, ' '),
                                     },
                                     (err, res, body) => {
-                                        console.log(diff, "upload", u, p, body);
+                                        console.log(diff, "upload", u, body);
                                         fetch(u, p, diff + 1);
                                     },
                                 );
