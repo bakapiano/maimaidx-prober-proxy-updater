@@ -32,7 +32,12 @@ function checkHostInWhiteList(target) {
 function httpOptions(clientReq, clientRes) {
   var reqUrl = url.parse(clientReq.url);
   if (!checkHostInWhiteList(reqUrl.host)) {
-    clientRes.end('Check your proxy settings!');
+    try {
+      clientRes.end('Check your proxy settings!');
+    }
+    catch (err) {
+      console.log(err)
+    }
     return
   }
 
@@ -89,7 +94,12 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
   console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
 
   if (!checkHostInWhiteList(reqUrl.host)) {
-    clientSocket.end('Check your proxy settings!');
+    try {
+      clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    }
+    catch (err) {
+      console.log(err)
+    }
     return
   }
 

@@ -12,6 +12,10 @@ app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
     const username = serverReq.body.username
     const password = serverReq.body.password
 
+    if (!username || ! password) {
+        serverRes.send("用户名或密码不能为空")
+    }
+
     crawler.auth({
         callback(href) {
             const resultUrl = url.parse(href, true)
