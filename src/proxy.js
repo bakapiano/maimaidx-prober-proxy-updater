@@ -38,7 +38,8 @@ function httpOptions(clientReq, clientRes) {
   var reqUrl = url.parse(clientReq.url);
   if (!checkHostInWhiteList(reqUrl.host)) {
     try {
-      clientRes.end();
+      clientRes.statusCode = 400
+      clientRes.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     }
     catch (err) {
       console.log(err)
@@ -57,9 +58,13 @@ function httpOptions(clientReq, clientRes) {
       const { username, password } = global.dict[key]
       delete global.dict[key]
 
-      crawler.work({ username, password, url: target , callback(msg){
-        clientRes.end(msg);
-      }})
+      crawler.work({
+        username, password, url: target, callback(msg) {
+          clientRes.writeHead(200, { 'Content-Type': 'text/html' })
+          clientRes.statusCode = 200
+          clientRes.end(msg);
+        }
+      })
     }
     catch (err) {
       console.log(err)
@@ -101,7 +106,8 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
 
   if (!checkHostInWhiteList(reqUrl.host)) {
     try {
-      clientSocket.end();
+      clientSocket.statusCode = 400
+      clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     }
     catch (err) {
       console.log(err)
@@ -134,6 +140,7 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
 
 proxyServer.on('clientError', (err, clientSocket) => {
   console.log('client error: ' + err);
+  clientSocket.statusCode = 400
   clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
 });
 
