@@ -4,8 +4,7 @@
 
 ## 使用方法
 
-1. 手动修改全局 HTTP 代理为 `proxy.bakapiano.com:2560`
-
+1. 手动修改全局 HTTP 代理为 `proxy.bakapiano.com:2560`（若使用代理软件，请自行添加代理规则来保证 wahlap.com 为后缀的 HTTP 请求经过代理转发）
 2. 在微信任意聊天中发送链接 [https://maimai.bakapiano.com](https://maimai.bakapiano.com) 并访问
 3. 填写查分器账号密码并提交
 4. 手动还原全局 HTTP 代理
@@ -18,7 +17,7 @@
 - [x] Win10 
 - [x] Android
 - [ ] Mac
-- [ ] IOS
+- [x] IOS
 - [ ] Linux
 
 ## 部署（待完善）

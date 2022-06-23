@@ -1,6 +1,5 @@
 import express from "express";
 import url from 'url';
-import request from "request"
 import { crawler } from "./crawler.js";
 import bodyParser from "body-parser";
 

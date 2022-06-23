@@ -1,5 +1,4 @@
 import request from "request"
-import tough from "tough-cookie"
 
 
 var crawler = {}
@@ -13,7 +12,7 @@ crawler.auth = function ({ callback }) {
     })
 }
 
-crawler.work = function ({ username, password, url, callback}) {
+crawler.work = function ({ username, password, url, callback }) {
     const cj = request.jar();
 
     request.get(

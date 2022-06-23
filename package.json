@@ -1,35 +1,34 @@
 {
-  "name": "nodejs-forward-proxy-server",
+  "name": "maimaidx-prober-updater",
   "version": "1.0.0",
-  "description": "A Node.JS forward proxy server",
+  "description": "A maimaidx-prober data import project",
   "type": "module",
-  "main": "proxy.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node proxy.js",
+    "start": "node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gl14916/nodejs-forward-proxy-server.git"
+    "url": "git+https://github.com/bakapiano/maimaidx-prober-updater.git"
   },
   "keywords": [
-    "forward",
-    "proxy"
+    "maimai",
+    "maimaidx-prober",
+    "maimaidx-prober-updater"
   ],
-  "author": "Gary Li",
+  "author": "bakapiano",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gl14916/nodejs-forward-proxy-server/issues"
+    "url": "https://github.com/bakapiano/maimaidx-prober-updater/issues"
   },
-  "homepage": "https://github.com/gl14916/nodejs-forward-proxy-server#readme",
+  "homepage": "https://github.com/bakapiano/maimaidx-prober-updater#readme",
   "dependencies": {
     "body-parser": "^1.20.0",
-    "clipboardy": "^3.0.0",
     "express": "^4.18.1",
     "http": "0.0.0",
     "net": "^1.0.2",
     "request": "^2.88.2",
-    "tough-cookie": "^4.0.0",
     "url": "^0.11.0"
   }
 }
