@@ -26,7 +26,7 @@ app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
                 username, 
                 password,
             }
-
+            setTimeout(()=>delete global.dict[key], 1000*60*5)
             serverRes.redirect(href)
         }
     })

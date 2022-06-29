@@ -14,6 +14,10 @@
         设置代理服务器地址为<span>proxy.bakapiano.com</span>:2560
         <br/>
         请在数据更新完毕后调回代理配置！
+        <br/>
+        <br/>
+        代理配置状态检测：
+        <img src="http://static01.imgkr.com/temp/de80154defc2441daf863c5eec631dcd.png" id="status"/>
     </p>
     <h2>
         Step 2. 填写查分器信息
@@ -98,6 +102,8 @@
     }
 </style>
 <script>
+    var img = document.getElementById("status")
+    img.src = img.src + "?wtf=" + Math.random()
     // var host = document.getElementById("host")
     // host.innerText = window.location.hostname
 </script>
