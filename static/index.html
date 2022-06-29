@@ -1,50 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
     <title>查分器数据更新</title>
 </head>
+
 <body>
     <h2>
         Step 1. 配置设备代理
-    </h1>
-    <p>
-        设置代理服务器地址为<span>proxy.bakapiano.com</span>:2560
-        <br/>
-        请在数据更新完毕后调回代理配置！
-        <br/>
-        <br/>
-        代理配置状态检测：
-        <img src="http://static01.imgkr.com/temp/de80154defc2441daf863c5eec631dcd.png" id="status"/>
-    </p>
-    <h2>
-        Step 2. 填写查分器信息
-    </h1>
-    <p>
-        填写<a href="https://www.diving-fish.com/maimaidx/prober/" target="_blank">舞萌 DX 查分器</a>登录信息并提交
-    </p>
-    <form action="/auth" method="post" id="form">
-        <input type="text" name="username" placeholder="查分器账户" minlength="1">
-        <input type="password" name="password" placeholder="查分器密码" minlength="1">
-        <button type="submit" id="submit">
-            提交
-        </button>
-    </form>
+        </h1>
+        <p>
+            设置代理服务器地址为<span>proxy.bakapiano.com</span>:2560
+            <br />
+            请在数据更新完毕后调回代理配置！
+            <br />
+            <br />
+            代理配置状态：<span id="proxy-status" style="color: red;">错误</span>
+            <img src="" id="status" style="display: none;" />
+        </p>
+        <h2>
+            Step 2. 填写查分器信息
+            </h1>
+            <p>
+                填写<a href="https://www.diving-fish.com/maimaidx/prober/" target="_blank">舞萌 DX 查分器</a>登录信息并提交
+            </p>
+            <form action="/auth" method="post" id="form">
+                <input type="text" name="username" placeholder="查分器账户" minlength="1">
+                <input type="password" name="password" placeholder="查分器密码" minlength="1">
+                <button type="submit" id="submit">
+                    提交
+                </button>
+            </form>
 </body>
+
 </html>
 <style>
     h2 {
         margin-top: 8px;
     }
+
     span {
         margin-left: 2px;
     }
+
     a {
         margin-left: 2px;
         margin-right: 2px;
     }
+
     body {
         max-width: 280px;
         margin-top: 48px;
@@ -52,6 +58,7 @@
         margin-right: 32px;
         box-sizing: border-box;
     }
+
     html {
         display: flex;
         flex-direction: column;
@@ -59,14 +66,17 @@
         padding: 0;
         margin: 0;
     }
-    html{
+
+    html {
         width: 100%;
         height: 100%;
     }
+
     .input-title {
         font-size: 14px;
         font-weight: 600;
     }
+
     input {
         padding-left: 6px;
         /* font-size: 12px; */
@@ -81,13 +91,16 @@
         border-radius: 8px;
         outline: none;
     }
+
     input:focus {
         border-color: #4e6ef2;
     }
+
     #form {
         display: flex;
         flex-direction: column;
     }
+
     #submit {
         box-sizing: border-box;
         border: 0;
@@ -102,8 +115,25 @@
     }
 </style>
 <script>
+    var proxyReady = false
     var img = document.getElementById("status")
-    img.src = img.src + "?wtf=" + Math.random()
+    var proxyStatus = document.getElementById("proxy-status")
+    var form = document.getElementById('form')
+    img.src = "http://static01.imgkr.com/temp/de80154defc2441daf863c5eec631dcd.png?wtf=" + Math.random()
+    img.onerror = () => {
+        proxyReady = true
+        proxyStatus.innerText = "正确"
+        proxyStatus.style = "color: green";
+    }
+    form.onsubmit = (e) => {
+        if (!proxyReady) {
+            alert("请检查代理配置！")
+            return false
+        }
+        return true
+    }
+
+
     // var host = document.getElementById("host")
     // host.innerText = window.location.hostname
 </script>

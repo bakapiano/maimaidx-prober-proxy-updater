@@ -15,7 +15,8 @@ const whiteList = [
   "maimai.bakapiano.digital",
   "maimai.bakapiano.com",
   "open.weixin.qq.com",
-  "static01.imgkr.com",
+  // "static01.imgkr.com",
+  "devtest.com",
 ]
 
 function checkHostInWhiteList(target) {
@@ -48,36 +49,6 @@ function httpOptions(clientReq, clientRes) {
     return
   }
 
-  console.log('proxy for http request: ' + reqUrl.href);
-
-  if (reqUrl.href.startsWith("http://static01.imgkr.com/temp/de80154defc2441daf863c5eec631dcd.png")) {
-
-    var options = {
-      hostname: reqUrl.hostname,
-      port: reqUrl.port,
-      path: "/temp/20aa6fe8c5604890a3088f65c1b27b9f.png",
-      method: clientReq.method,
-      headers: clientReq.headers
-    };
-
-    console.log(options)
-
-    // create socket connection on behalf of client, then pipe the response to client response (pass it on)
-    var serverConnection = http.request(options, function (res) {
-      clientRes.writeHead(res.statusCode, res.headers)
-      res.pipe(clientRes);
-    });
-
-    serverConnection.on('error', (e) => {
-      console.log('server connection error: ' + e);
-    });
-
-    clientReq.pipe(serverConnection);
-
-    console.log("hook")
-    return
-  }
-
   if (reqUrl.href.startsWith("http://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx")) {
     console.log("Successfully hook auth request!")
 
@@ -101,8 +72,6 @@ function httpOptions(clientReq, clientRes) {
 
     return
   }
-
-  // 不会走到这里
 
   var options = {
     hostname: reqUrl.hostname,

@@ -3,6 +3,21 @@ import request from "request"
 
 var crawler = {}
 
+crawler.verifyAccount = function({username, password, callback}) {
+    request.post("https://www.diving-fish.com/api/maimaidxprober/login", {
+        headers: {
+            Host: "www.diving-fish.com",
+            Origin: "https://www.diving-fish.com",
+            Referer: "https://www.diving-fish.com/maimaidx/prober/",
+            "Content-Type": "application/json;charset=UTF-8",
+        },
+        body: JSON.stringify({username, password}),
+    }, (err, res, body) => {
+        console.log(body)
+        const data = JSON.parse(body)
+        callback("errcode" in data)
+    })
+}
 
 crawler.auth = function ({ callback }) {
     request.get("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx", {}, (err, res, body) => {

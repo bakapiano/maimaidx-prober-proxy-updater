@@ -11,26 +11,34 @@ app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
     const username = serverReq.body.username
     const password = serverReq.body.password
 
-    if (!username || ! password) {
+    if (!username || !password) {
         serverRes.send("用户名或密码不能为空")
         return
     }
 
-    crawler.auth({
-        callback(href) {
-            const resultUrl = url.parse(href, true)
-            const {redirect_uri} = resultUrl.query
-            const key = url.parse(redirect_uri, true).query.r
-
-            global.dict[key] = {
-                username, 
-                password,
+    crawler.verifyAccount({
+        username, password, callback(fail) {
+            if (fail) {
+                serverRes.send("查分器用户名或密码错误")
+                return
             }
-            setTimeout(()=>delete global.dict[key], 1000*60*5)
-            serverRes.redirect(href)
+
+            crawler.auth({
+                callback(href) {
+                    const resultUrl = url.parse(href, true)
+                    const { redirect_uri } = resultUrl.query
+                    const key = url.parse(redirect_uri, true).query.r
+
+                    global.dict[key] = {
+                        username,
+                        password,
+                    }
+                    setTimeout(() => delete global.dict[key], 1000 * 60 * 5)
+                    serverRes.redirect(href)
+                }
+            })
         }
     })
-
 })
 
 app.use(express.static('static'));
