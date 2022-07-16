@@ -40,8 +40,7 @@ function httpOptions(clientReq, clientRes) {
   console.log("fuck")
   console.log(clientReq.url)
   var reqUrl = url.parse(clientReq.url);
-    if (!checkHostInWhiteList(reqUrl.host) ||
-        clientReq.url.startsWith("http://test.proxy")) { //test proxy
+    if (!checkHostInWhiteList(reqUrl.host)) {
     try {
         clientRes.statusCode = 400
         clientRes.writeHead(400, { 
@@ -112,7 +111,8 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
   var reqUrl = url.parse('https://' + clientReq.url);
   console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
 
-    if (!checkHostInWhiteList(reqUrl.host)) {
+    if (!checkHostInWhiteList(reqUrl.host) ||
+        reqUrl.href.startsWith("https://chunithm.wahlap.com/")) {
     try {
       clientSocket.statusCode = 400
       clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');

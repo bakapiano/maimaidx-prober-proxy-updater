@@ -114,28 +114,41 @@
         border-radius: 8px;
     }
 </style>
-<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://libs.baidu.com/jquery/2.1.1/jquery.min.js"></script>
 <script>
     var proxyReady = false
     // var img = document.getElementById("status")
     var proxyStatus = document.getElementById("proxy-status")
     var form = document.getElementById('form')
-    var proxyTestUrl = `http://test.proxy.${new Date().getTime()}.wahlap.com/`
-    var checker = setInterval(() => {
-        $.ajax({
-            method: "GET",
-            url: proxyTestUrl,
-            statusCode: {
-                400: function (xhr) {
-                    console.log(400)
-                    proxyReady = true
-                    proxyStatus.innerText = "正确"
-                    proxyStatus.style = "color: green";
+    var proxyTestUrl = `https://chunithm.wahlap.com/`
+    var test = null
+
+    var tester = () => new Promise((resolve, reject) => {
+        fetch(proxyTestUrl, { 'mode': 'no-cors' },)
+            .then(() => {
+                reject()
+            })
+            .catch((err) => {
+                console.log("ok")
+                proxyReady = true
+                proxyStatus.innerText = "正确"
+                proxyStatus.style = "color: green";
+                resolve()
+            })
+    })
+
+    tester()
+        .then(() => { })
+        .catch((err) => {
+            var checker = setInterval(async () => {
+                try {
+                    await tester()
                     clearInterval(checker)
                 }
-            }
+                catch(err) { }
+            }, 5000);
         })
-    }, 5000);
+
     form.onsubmit = (e) => {
         if (!proxyReady) {
             alert("请检查代理配置！")
