@@ -112,7 +112,7 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
   var reqUrl = url.parse('https://' + clientReq.url);
   console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
 
-    if (!checkHostInWhiteList(reqUrl.host) || reqUrl.startsWith("https://test.proxy")) {
+    if (!checkHostInWhiteList(reqUrl.host)) {
     try {
       clientSocket.statusCode = 400
       clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
