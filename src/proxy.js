@@ -15,7 +15,7 @@ const whiteList = [
   "maimai.bakapiano.digital",
   "maimai.bakapiano.com",
   "open.weixin.qq.com",
-  // "static01.imgkr.com",
+  "libs.baidu.com",
   "devtest.com",
 ]
 
@@ -37,10 +37,16 @@ function httpOptions(clientReq, clientRes) {
     console.log('client socket error: ' + e);
   });
 
+  console.log("fuck")
+  console.log(clientReq.url)
   var reqUrl = url.parse(clientReq.url);
-  if (!checkHostInWhiteList(reqUrl.host)) {
+    if (!checkHostInWhiteList(reqUrl.host) ||
+        clientReq.url.startsWith("http://test.proxy")) { //test proxy
     try {
-      clientRes.statusCode = 400
+        clientRes.statusCode = 400
+        clientRes.writeHead(400, { 
+            'Access-Control-Allow-Origin': '*',
+        })
       clientRes.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     }
     catch (err) {
@@ -60,7 +66,9 @@ function httpOptions(clientReq, clientRes) {
 
       crawler.work({
         username, password, url: target, callback(msg) {
-          clientRes.writeHead(200, { 'Content-Type': 'text/html' })
+          clientRes.writeHead(200, { 
+              'Content-Type': 'text/html',
+          })
           clientRes.statusCode = 200
           clientRes.end(msg);
         }
@@ -102,9 +110,9 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
   });
 
   var reqUrl = url.parse('https://' + clientReq.url);
-  // console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
+  console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
 
-  if (!checkHostInWhiteList(reqUrl.host)) {
+    if (!checkHostInWhiteList(reqUrl.host) || reqUrl.startsWith("https://test.proxy")) {
     try {
       clientSocket.statusCode = 400
       clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');

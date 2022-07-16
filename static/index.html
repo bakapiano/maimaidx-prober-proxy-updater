@@ -19,7 +19,7 @@
             <br />
             <br />
             代理配置状态：<span id="proxy-status" style="color: red;">错误</span>
-            <img src="" id="status" style="display: none;" />
+            <!-- <img src="" id="status" style="display: none;" /> -->
         </p>
         <h2>
             Step 2. 填写查分器信息
@@ -114,17 +114,28 @@
         border-radius: 8px;
     }
 </style>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 <script>
     var proxyReady = false
-    var img = document.getElementById("status")
+    // var img = document.getElementById("status")
     var proxyStatus = document.getElementById("proxy-status")
     var form = document.getElementById('form')
-    img.src = "http://static01.imgkr.com/temp/de80154defc2441daf863c5eec631dcd.png?wtf=" + Math.random()
-    img.onerror = () => {
-        proxyReady = true
-        proxyStatus.innerText = "正确"
-        proxyStatus.style = "color: green";
-    }
+    var proxyTestUrl = `http://test.proxy.${new Date().getTime()}.wahlap.com/`
+    var checker = setInterval(() => {
+        $.ajax({
+            method: "GET",
+            url: proxyTestUrl,
+            statusCode: {
+                400: function (xhr) {
+                    console.log(400)
+                    proxyReady = true
+                    proxyStatus.innerText = "正确"
+                    proxyStatus.style = "color: green";
+                    clearInterval(checker)
+                }
+            }
+        })
+    }, 5000);
     form.onsubmit = (e) => {
         if (!proxyReady) {
             alert("请检查代理配置！")
@@ -132,8 +143,4 @@
         }
         return true
     }
-
-
-    // var host = document.getElementById("host")
-    // host.innerText = window.location.hostname
 </script>
