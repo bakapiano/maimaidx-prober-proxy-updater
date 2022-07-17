@@ -151,8 +151,8 @@
 
     form.onsubmit = (e) => {
         if (!proxyReady) {
-            alert("请检查代理配置！")
-            return false
+            const cotinueAnyWay = confirm("代理配置可能有问题，是否继续？")
+            return cotinueAnyWay
         }
         return true
     }
