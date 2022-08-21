@@ -10,7 +10,7 @@ const whiteList = [
   "www.diving-fish.com",
   "tgk-wcaime.wahlap.com",
   "localhost",
-  "maimai.wahlap.com",
+  //"maimai.wahlap.com",
   "bakapiano.digital",
   "maimai.bakapiano.digital",
   "maimai.bakapiano.com",
@@ -112,7 +112,7 @@ proxyServer.on('connect', (clientReq, clientSocket, head) => {
   console.log('proxy for https request: ' + reqUrl.href + '(path encrypted by ssl)');
 
     if (!checkHostInWhiteList(reqUrl.host) ||
-        reqUrl.href.startsWith("https://chunithm.wahlap.com/")) {
+        reqUrl.href.startsWith("https://maimai.wahlap.com/")) {
     try {
       clientSocket.statusCode = 400
       clientSocket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
