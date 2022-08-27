@@ -2,24 +2,27 @@ import express from "express";
 import url from 'url';
 import { crawler } from "./crawler.js";
 import bodyParser from "body-parser";
+import cors from "cors"
 
 var app = express()
+app.use(cors())
 
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var jsonParser = bodyParser.json({ extended: false })
 
-app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
+app.post("/auth", jsonParser, function (serverReq, serverRes) {
     const username = serverReq.body.username
     const password = serverReq.body.password
-
+    console.log(username, password)
+    
     if (!username || !password) {
-        serverRes.send("用户名或密码不能为空")
+        serverRes.status(400).send("用户名或密码不能为空！")
         return
     }
 
     crawler.verifyAccount({
         username, password, callback(fail) {
             if (fail) {
-                serverRes.send("查分器用户名或密码错误")
+                serverRes.status(400).send("查分器用户名或密码错误！")
                 return
             }
 
@@ -34,7 +37,7 @@ app.post("/auth", urlencodedParser, function (serverReq, serverRes) {
                         password,
                     }
                     setTimeout(() => delete global.dict[key], 1000 * 60 * 5)
-                    serverRes.redirect(href)
+                    serverRes.status(200).send(href)
                 }
             })
         }

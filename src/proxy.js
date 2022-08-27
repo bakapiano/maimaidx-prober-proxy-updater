@@ -65,11 +65,12 @@ function httpOptions(clientReq, clientRes) {
 
       crawler.work({
         username, password, url: target, callback(msg) {
-          clientRes.writeHead(200, { 
-              'Content-Type': 'text/html',
+          clientRes.writeHead(302, { 
+              //'Content-Type': 'text/html',
+              "location": "https://maimai.bakapiano.com/#Success"
           })
-          clientRes.statusCode = 200
-          clientRes.end(msg);
+          clientRes.statusCode = 302
+          clientRes.end();
         }
       })
     }
