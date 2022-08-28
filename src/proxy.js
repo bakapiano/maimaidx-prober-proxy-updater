@@ -24,7 +24,7 @@ const whiteList = [
 function checkHostInWhiteList(target) {
   if (!target) return false
   target = target.split(":")[0]
-  console.log(target)
+  // console.log(target)
   for (let host of whiteList) {
     if (target == host) {
       return true
@@ -39,8 +39,7 @@ function httpOptions(clientReq, clientRes) {
     console.log('client socket error: ' + e);
   });
 
-  console.log("fuck")
-  console.log(clientReq.url)
+  // console.log(clientReq.url)
   var reqUrl = url.parse(clientReq.url);
     if (!checkHostInWhiteList(reqUrl.host)) {
     try {

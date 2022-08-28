@@ -7,7 +7,7 @@ global.host = "127.0.0.1"
 
 server.listen(8081)
 server.on("error", (error) => console.log(`Server error ${error}`))
-console.log("Server listen on 8081")
+console.log("HTTP server listen on 8081")
 
 proxy.listen(2560)
 proxy.on("error", (error) => console.log(`Proxy error ${error}`))
