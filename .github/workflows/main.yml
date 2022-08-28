@@ -27,4 +27,4 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: bakapiano/qinglianjie-backend-ninja:latest
+          tags: bakapiano/maimaidx-prober-updater-backend:latest
