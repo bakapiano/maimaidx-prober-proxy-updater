@@ -15,6 +15,7 @@ const whiteList = [
   "maimai.bakapiano.com",
   "backend.maimai.bakapiano.com",
   "test.bakapiano.com",
+  "backend.yellowground-6b089ae1.eastasia.azurecontainerapps.io",
 
   "www.diving-fish.com",
   "open.weixin.qq.com",
