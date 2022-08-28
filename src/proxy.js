@@ -7,16 +7,18 @@ var proxyServer = http.createServer(httpOptions);
 
 const whiteList = [
   "127.0.0.1",
-  "www.diving-fish.com",
-  "tgk-wcaime.wahlap.com",
   "localhost",
+
+  "tgk-wcaime.wahlap.com",
   //"maimai.wahlap.com",
-  "bakapiano.digital",
-  "maimai.bakapiano.digital",
+
   "maimai.bakapiano.com",
+  "backend.maimai.bakapiano.com",
+  "test.bakapiano.com",
+
+  "www.diving-fish.com",
   "open.weixin.qq.com",
   "libs.baidu.com",
-  "devtest.com",
 ]
 
 function checkHostInWhiteList(target) {
