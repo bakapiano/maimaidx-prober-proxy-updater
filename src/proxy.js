@@ -10,7 +10,6 @@ const whiteList = [
   "localhost",
 
   "tgk-wcaime.wahlap.com",
-  //"maimai.wahlap.com",
 
   "maimai.bakapiano.com",
   "backend.maimai.bakapiano.com",
