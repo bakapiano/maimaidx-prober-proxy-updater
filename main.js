@@ -1,7 +1,6 @@
 import { server } from "./src/server.js"
 import { proxy } from "./src/proxy.js"
 
-
 global.dict = {}
 global.host = "127.0.0.1"
 
