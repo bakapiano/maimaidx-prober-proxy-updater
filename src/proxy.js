@@ -19,6 +19,8 @@ const whiteList = [
   "www.diving-fish.com",
   "open.weixin.qq.com",
   "libs.baidu.com",
+  "weixin110.qq.com",
+  "res.wx.qq.com",
 ]
 
 function checkHostInWhiteList(target) {

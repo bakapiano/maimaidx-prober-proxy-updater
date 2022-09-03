@@ -9,11 +9,9 @@ app.use(cors())
 
 var jsonParser = bodyParser.json({ extended: false })
 
-app.post("/auth", jsonParser, function (serverReq, serverRes) {
-    const username = serverReq.body.username
-    const password = serverReq.body.password
+function work(username, password, serverRes, jump=false) {
     console.log(username, password)
-    
+
     if (!username || !password) {
         serverRes.status(400).send("用户名或密码不能为空！")
         return
@@ -37,11 +35,20 @@ app.post("/auth", jsonParser, function (serverReq, serverRes) {
                         password,
                     }
                     setTimeout(() => delete global.dict[key], 1000 * 60 * 5)
-                    serverRes.status(200).send(href)
+
+                    jump ? serverRes.redirect(href) : serverRes.status(200).send(href)
                 }
             })
         }
     })
+}
+
+app.post("/auth", jsonParser, function (serverReq, serverRes) {
+    work(serverReq.body.username, serverReq.body.password, serverRes)
+})
+
+app.get("/shortcut", function(serverReq, serverRes){
+    work(serverReq.query.username, serverReq.query.password, serverRes, true)
 })
 
 app.use(express.static('static'));
