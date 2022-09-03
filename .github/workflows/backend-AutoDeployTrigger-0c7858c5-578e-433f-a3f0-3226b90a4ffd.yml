@@ -8,7 +8,7 @@ on:
       [ main ]
     paths:
     - '**'
-    - '.github/workflows/backend-AutoDeployTrigger-d5b9e376-321e-424a-aa5c-469a0d05e78d.yml'
+    - '.github/workflows/backend-AutoDeployTrigger-0c7858c5-578e-433f-a3f0-3226b90a4ffd.yml'
 
   # Allow mannually trigger 
   workflow_dispatch:      
