@@ -5,4 +5,4 @@ RUN npm install
 RUN npm install -g forever
 COPY . .
 EXPOSE 8081 2560
-CMD ["forever", "main.js"]
+CMD ["forever", "-l", "forever.log", "-o", "out.log", "-e", "err.log", "-a", "main.js"]
