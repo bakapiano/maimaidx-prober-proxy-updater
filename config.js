@@ -2,10 +2,10 @@ const config = {
     host: "maimai.bakapiano.com",
 }
 
-const host = process.argv.slice(3)[0]
-if (host !== undefined) {
-    config.host = host;
+const serverHost = process.argv.slice(2)[0]
+if (serverHost !== undefined) {
+    config.host = serverHost;
 }
-console.log(host)
+console.log(`SERVER_HOST=${serverHost}`)
 
 export default config;
