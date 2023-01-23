@@ -5,7 +5,9 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
+    "dev": "node main.js",
+    "start": "forever -l forever.log -o out.log -e err.log -a start main.js",
+    "stop": "forever stop main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +29,7 @@
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "express": "^4.18.1",
+    "forever": "^4.0.3",
     "http": "0.0.0",
     "lowdb": "^5.0.5",
     "net": "^1.0.2",
