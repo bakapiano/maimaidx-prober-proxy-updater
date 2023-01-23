@@ -25,11 +25,6 @@ const WHITE_LIST = [
   
 ].concat(config.host);
 
-const host = process.env.SERVE_HOST
-if (host !== undefined) {
-  WHITE_LIST.push(host)
-}
-
 function checkHostInWhiteList(target) {
   if (!target) return false;
   target = target.split(":")[0];
