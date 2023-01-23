@@ -28,7 +28,7 @@ const WHITE_LIST = [
 function checkHostInWhiteList(target) {
   if (!target) return false;
   target = target.split(":")[0];
-  return WHITE_LIST.find((value)=> value == host) !== undefined;
+  return WHITE_LIST.find((value) => value === target) !== undefined;
 }
 
 // handle http proxy requests
