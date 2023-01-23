@@ -20,21 +20,45 @@
 - [x] IOS
 - [ ] Linux
 
-## 部署（待完善）
+## 部署
 
-安装 nodejs，版本 >=16
+### 使用 nodejs 部署
+
+首先安装 nodejs，版本 >=16；之后克隆项目并安装依赖：
+
 ```
-git clone https://github.com/bakapiano/maimaidx-prober-updater
-cd maimaidx-prober-updater
+git clone https://github.com/bakapiano/maimaidx-prober-proxy-updater
+cd maimaidx-prober-proxy-updater
 npm install
 ```
 
-若直接通过 IP 访问：
-
-    修改 `src/proxy.js` 文件的 whiteList 变量，添加 "weixin110.qq.com" 和服务器的公网 IP 地址
+之后在目录 `maimaidx-prober-proxy-updater` 运行如下命令进行部署：
 
 ```
-node main.js
+npm start {SERVER_HOST}
 ```
 
-HTTP 代理默认启在 2560 端口上，web 服务器启在 8081 上，使用方法同上
+其中 `{SERVER_HOST}` 需替换为网站访问用的 host，如 IP `1.1.1.1` 或域名 `maimai.bakapiano.com`
+
+HTTP 代理默认启在 2560 端口上，web 服务器启在 8081 上，使用方法同上。
+
+
+停止运行：
+```
+npm stop
+```
+
+### 使用 docker 部署
+
+首先安装 docker，之后使用镜像 `bakapiano/maimai-prober-proxy-updater` 进行构建：
+
+```
+docker run \
+-p 8081:8081 -p 2560:2560 \
+-e SERVER_HOST={SERVER_HOST} \
+-d bakapiano/maimai-prober-proxy-updater
+```
+
+同上，`{SERVER_HOST}` 需替换为网站访问用的 host，如 IP `1.1.1.1` 或域名 `maimai.bakapiano.com`
+
+端口映射可根据需要自行修改，8081 为 web 服务器端口 ，2560 为代理服务器端口。 
