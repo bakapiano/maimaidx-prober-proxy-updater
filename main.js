@@ -1,3 +1,4 @@
+import config from "./config.js"
 import { proxy } from "./src/proxy.js"
 import { server } from "./src/server.js"
 
