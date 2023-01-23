@@ -67,7 +67,7 @@ function httpOptions(clientReq, clientRes) {
         if (value !== undefined) {
           console.log(key, value);
 
-          const { username, password, successPageUrl } = value;
+          let { username, password, successPageUrl } = value;
           delValue(key);
 
           if (successPageUrl === undefined) {

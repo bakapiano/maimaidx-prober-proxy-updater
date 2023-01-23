@@ -16,7 +16,7 @@ app.use(cors());
 const jsonParser = bodyParser.json({ extended: false });
 
 async function serve(serverReq, serverRes, data, redirect) {
-  const { username, password, successPageUrl } = data
+  let { username, password, successPageUrl } = data
   console.log(username, password, successPageUrl)
 
   if (!username || !password) {
