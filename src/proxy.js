@@ -3,7 +3,7 @@ import { delValue, getValue } from "./db.js";
 import config from "../config.js";
 import http from "http";
 import net from "net";
-import { updateMaimaiScore } from "./crawler.js";
+import { updateChunithmScore, updateMaimaiScore } from "./crawler.js";
 import url from "url";
 
 const proxyServer = http.createServer(httpOptions);
@@ -54,7 +54,7 @@ function httpOptions(clientReq, clientRes) {
 
   if (
     reqUrl.href.startsWith(
-      "http://tgk-wcaime.wahlap.com/wc_auth/oauth/callback/maimai-dx"
+      "http://tgk-wcaime.wahlap.com/wc_auth/oauth/callback"
     )
   ) {
     console.log("Successfully hook auth request!");
@@ -73,8 +73,14 @@ function httpOptions(clientReq, clientRes) {
           if (successPageUrl === undefined) {
             successPageUrl = "https://maimai.bakapiano.com/#Success"
           }
-
-          updateMaimaiScore(username, password, target);
+          
+          if(target.includes('maimai-dx')) {
+            updateMaimaiScore(username, password, target);
+          } else if (target.includes('chunithm')) {
+            updateChunithmScore(username, password, target);
+          } else {
+            throw new Error('ongeki?');
+          }
           
           clientRes.writeHead(302, { location: successPageUrl });
           clientRes.statusCode = 302;
