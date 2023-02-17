@@ -5,6 +5,7 @@ import http from "http";
 import net from "net";
 import { updateChunithmScore, updateMaimaiScore } from "./crawler.js";
 import url from "url";
+import { HTTPParser } from "http-parser-js";
 
 const proxyServer = http.createServer(httpOptions);
 
@@ -16,13 +17,13 @@ const WHITE_LIST = [
 
   "maimai.bakapiano.com",
   "www.diving-fish.com",
-  
+
   "open.weixin.qq.com",
   "weixin110.qq.com",
   "res.wx.qq.com",
 
   "libs.baidu.com",
-  
+
 ].concat(config.host);
 
 function checkHostInWhiteList(target) {
@@ -31,8 +32,39 @@ function checkHostInWhiteList(target) {
   return WHITE_LIST.find((value) => value === target) !== undefined;
 }
 
+async function onAuthHook(href) {
+  console.log("Successfully hook auth request!");
+
+  const target = href.replace("http", "https");
+  const key = url.parse(target, true).query.r;
+
+  const value = await getValue(key);
+  if (value === undefined) {
+    return "https://maimai.bakapiano.com/#Success";
+  }
+
+  console.log(key, value);
+
+  let { username, password, successPageUrl } = value;
+  delValue(key);
+
+  if (successPageUrl === undefined) {
+    successPageUrl = "https://maimai.bakapiano.com/#Success"
+  }
+
+  if (target.includes('maimai-dx')) {
+    updateMaimaiScore(username, password, target);
+  } else if (target.includes('chunithm')) {
+    updateChunithmScore(username, password, target);
+  } else {
+    throw new Error('ongeki?');
+  }
+
+  return successPageUrl;
+}
+
 // handle http proxy requests
-function httpOptions(clientReq, clientRes) {
+async function httpOptions(clientReq, clientRes) {
   clientReq.on("error", (e) => {
     console.log("client socket error: " + e);
   });
@@ -57,36 +89,11 @@ function httpOptions(clientReq, clientRes) {
       "http://tgk-wcaime.wahlap.com/wc_auth/oauth/callback"
     )
   ) {
-    console.log("Successfully hook auth request!");
-
     try {
-      const target = reqUrl.href.replace("http", "https");
-      const key = url.parse(target, true).query.r;
-
-      getValue(key).then((value) => {
-        if (value !== undefined) {
-          console.log(key, value);
-
-          let { username, password, successPageUrl } = value;
-          delValue(key);
-
-          if (successPageUrl === undefined) {
-            successPageUrl = "https://maimai.bakapiano.com/#Success"
-          }
-          
-          if(target.includes('maimai-dx')) {
-            updateMaimaiScore(username, password, target);
-          } else if (target.includes('chunithm')) {
-            updateChunithmScore(username, password, target);
-          } else {
-            throw new Error('ongeki?');
-          }
-          
-          clientRes.writeHead(302, { location: successPageUrl });
-          clientRes.statusCode = 302;
-          clientRes.end();
-        }
-      });
+      const redirectResult = await onAuthHook(target);
+      clientRes.writeHead(302, { location: redirectResult });
+      clientRes.statusCode = 302;
+      clientRes.end();
     } catch (err) {
       console.log(err);
     }
@@ -127,7 +134,8 @@ proxyServer.on("connect", (clientReq, clientSocket, head) => {
 
   if (
     !checkHostInWhiteList(reqUrl.host) ||
-    reqUrl.href.startsWith("https://maimai.wahlap.com/")
+    reqUrl.href.startsWith("https://maimai.wahlap.com/") ||
+    reqUrl.href.startsWith("https://chunithm.wahlap.com/")
   ) {
     try {
       clientSocket.statusCode = 400;
@@ -135,6 +143,27 @@ proxyServer.on("connect", (clientReq, clientSocket, head) => {
     } catch (err) {
       console.log(err);
     }
+    return;
+  }
+
+  if (reqUrl.host === 'tgk-wcaime.wahlap.com:80') {
+    clientSocket.write("HTTP/" +
+      clientReq.httpVersion +
+      " 200 Connection Established\r\n" +
+      "Proxy-agent: Node.js-Proxy\r\n" +
+      "\r\n",
+      "UTF-8", () => {
+        const parser = new HTTPParser('REQUEST');
+        parser[HTTPParser.kOnHeadersComplete] = async (info) => {
+          const redirectResult = await onAuthHook(`http://tgk-wcaime.wahlap.com${info.url}`);
+          clientSocket.end(`HTTP/1.1 302 Found\r\nLocation: ${redirectResult}\r\n\r\n`);
+        };
+
+        clientSocket.on('data', chunk => {
+          parser.execute(chunk);
+        });
+      });
+
     return;
   }
 
@@ -147,10 +176,10 @@ proxyServer.on("connect", (clientReq, clientSocket, head) => {
   var serverSocket = net.connect(options, () => {
     clientSocket.write(
       "HTTP/" +
-        clientReq.httpVersion +
-        " 200 Connection Established\r\n" +
-        "Proxy-agent: Node.js-Proxy\r\n" +
-        "\r\n",
+      clientReq.httpVersion +
+      " 200 Connection Established\r\n" +
+      "Proxy-agent: Node.js-Proxy\r\n" +
+      "\r\n",
       "UTF-8",
       () => {
         // creating pipes in both ends

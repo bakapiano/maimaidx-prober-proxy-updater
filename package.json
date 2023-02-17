@@ -30,11 +30,12 @@
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "forever": "^4.0.3",
-    "http": "0.0.0",
+    "http-parser-js": "^0.5.8",
     "lowdb": "^5.0.5",
-    "net": "^1.0.2",
     "node-fetch": "^3.3.0",
-    "node-fetch-cookies": "^2.0.4",
-    "url": "^0.11.0"
+    "node-fetch-cookies": "^2.0.4"
+  },
+  "devDependencies": {
+    "node": "^16.19.0"
   }
 }
