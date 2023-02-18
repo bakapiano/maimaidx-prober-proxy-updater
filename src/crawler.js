@@ -2,6 +2,21 @@ import { CookieJar, fetch as fetchWithCookie } from "node-fetch-cookies";
 
 import fetch from "node-fetch";
 
+
+async function fetchWithCookieWithRetry(cj, url, options) {
+  for (let i = 0; i < 5; i++) {
+    try {
+      return await fetchWithCookie(cj, url, options);
+    } catch (e) {
+      console.log(`delay due to fetch failed with attempt ${url} #${i + 1}`);
+
+      await new Promise(r => {
+        setTimeout(r, 1000);
+      });
+    }
+  }
+}
+
 async function verifyProberAccount(username, password) {
   const res = await fetch(
     "https://www.diving-fish.com/api/maimaidxprober/login",
@@ -36,7 +51,7 @@ async function getAuthUrl(type) {
 
 async function updateMaimaiScore(username, password, authUrl) {
   const cj = new CookieJar();
-  const fetch = async (url, options) => await fetchWithCookie(cj, url, options);
+  const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
 
   await fetch(authUrl, {
     headers: {
@@ -85,7 +100,7 @@ async function updateMaimaiScore(username, password, authUrl) {
 
 async function updateChunithmScore(username, password, authUrl) {
   const cj = new CookieJar();
-  const fetch = async (url, options) => await fetchWithCookie(cj, url, options);
+  const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
 
   const authResult = await fetch(authUrl, {
     headers: {
