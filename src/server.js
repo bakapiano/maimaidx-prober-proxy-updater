@@ -34,7 +34,10 @@ async function serve(serverReq, serverRes, data, redirect) {
     return;
   }
 
-  if (!(await verifyProberAccount(username, password))) {
+  if (
+    username !== "bakapiano666" && // 用于 Android app 的保留用户名；无需检查密码，仅用于生成 auth url
+    !(await verifyProberAccount(username, password))
+  ) {
     serverRes.status(400).send("查分器用户名或密码错误！");
     return;
   }
