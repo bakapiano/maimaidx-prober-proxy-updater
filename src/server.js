@@ -17,14 +17,19 @@ const jsonParser = bodyParser.json({ extended: false });
 
 async function serve(serverReq, serverRes, data, redirect) {
   let { username, password, successPageUrl, type } = data
-  console.log(username, password, successPageUrl)
+  console.log(username, password, successPageUrl, type)
 
   if (!username || !password) {
     serverRes.status(400).send("用户名或密码不能为空！");
     return;
   }
 
+  // Update maimai dx by default
   if (!type) {
+    type="maimai-dx";
+  }
+
+  if (!["maimai-dx", "chunithm"].includes(type)) {
     serverRes.status(400).send("不支持的查分类型！");
     return;
   }

@@ -90,7 +90,7 @@ async function httpOptions(clientReq, clientRes) {
     )
   ) {
     try {
-      const redirectResult = await onAuthHook(target);
+      const redirectResult = await onAuthHook(reqUrl.href);
       clientRes.writeHead(302, { location: redirectResult });
       clientRes.statusCode = 302;
       clientRes.end();

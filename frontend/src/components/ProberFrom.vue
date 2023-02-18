@@ -32,16 +32,16 @@
       <template #action>
         <n-space justify="space-between">
           <n-space>
-            <n-button type="success" @click="submitMai">更新舞萌DX</n-button>
-            <n-button type="success" @click="submitChuni">更新中二节奏</n-button>
+            <n-button type="success" @click="()=>submit('maimai-dx')">更新舞萌DX</n-button>
+            <n-button type="success" @click="()=>submit('chunithm')">更新中二节奏</n-button>
             <n-button v-model:value="remember" @click="clearForm" type="error">
               清空
             </n-button>
           </n-space>
           <n-space>
             生成快速跳转链接
-            <n-a @click="genShortcutMai">&nbsp;舞萌DX</n-a>
-            <n-a @click="genShortcutChuni">&nbsp;中二节奏</n-a>
+            <n-a @click="()=>genShortcut('maimai-dx')">&nbsp;舞萌DX</n-a>
+            <n-a @click="()=>genShortcut('chunithm')">&nbsp;中二节奏</n-a>
             </n-space>
         </n-space>
       </template>
@@ -131,14 +131,6 @@ function selectContent() {
   window.getSelection().addRange(range)
 }
 
-function genShortcutMai() {
-  return genShortcut('maimai-dx');  
-}
-
-function genShortcutChuni() {
-  return genShortcut('chunithm');
-}
-
 async function genShortcut(type) {
   if (!await post(type, false)) return;
   showModal.value = true
@@ -198,7 +190,7 @@ function submit(type) {
           negativeText: "取消",
           positiveText: "继续",
           onPositiveClick: () => {
-            post();
+            post(type);
           },
           autoFocus: false,
         });
