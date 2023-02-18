@@ -32,13 +32,17 @@
       <template #action>
         <n-space justify="space-between">
           <n-space>
-            <n-button type="success" @click="submit">提交</n-button>
+            <n-button type="success" @click="()=>submit('maimai-dx')">更新舞萌DX</n-button>
+            <n-button type="success" @click="()=>submit('chunithm')">更新中二节奏</n-button>
             <n-button v-model:value="remember" @click="clearForm" type="error">
               清空
             </n-button>
-            
           </n-space>
-          <n-a @click="genShortcut">生成快速跳转链接</n-a>
+          <n-space>
+            生成快速跳转链接
+            <n-a @click="()=>genShortcut('maimai-dx')">&nbsp;舞萌DX</n-a>
+            <n-a @click="()=>genShortcut('chunithm')">&nbsp;中二节奏</n-a>
+            </n-space>
         </n-space>
       </template>
     </n-card>
@@ -127,25 +131,26 @@ function selectContent() {
   window.getSelection().addRange(range)
 }
 
-async function genShortcut() {
-  if (!await post(false)) return;
+async function genShortcut(type) {
+  if (!await post(type, false)) return;
   showModal.value = true
   let url = `${window.location.href}shortcut?`
   const successPageUrl = window.location.href + "#Success"
   url += `successPageUrl=${encodeURIComponent(successPageUrl)}`
   url += `&username=${encodeURIComponent(formValue.value.username)}`
   url += `&password=${encodeURIComponent(formValue.value.password)}`
+  url += `&type=${encodeURIComponent(type)}`
   console.log(url)
   shortCut.value = url
 }
 
-async function post(jump = true) {
+async function post(type, jump = true) {
   loading.value = true;
   try {
-
     const result = await postForm(
       formValue.value.username,
-      formValue.value.password
+      formValue.value.password,
+      type,
     );
     console.log(result.data);
     saveToLocalStorage();
@@ -166,7 +171,15 @@ async function post(jump = true) {
   return false
 }
 
-function submit() {
+function submitChuni() {
+  return submit('chunithm');
+}
+
+function submitMai() {
+  return submit('maimai-dx');
+}
+
+function submit(type) {
   formRef.value?.validate((errors) => {
     console.log(props.proxyStatus);
     if (!errors) {
@@ -177,11 +190,11 @@ function submit() {
           negativeText: "取消",
           positiveText: "继续",
           onPositiveClick: () => {
-            post();
+            post(type);
           },
           autoFocus: false,
         });
-      } else post();
+      } else post(type);
     } else {
       console.log(errors);
     }
