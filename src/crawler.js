@@ -55,7 +55,7 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
     const stage = useStage(trace);
     
     const cj = new CookieJar();
-    const fetch = async (url, options) => await fetchWithCookie(cj, url, options);
+    const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
 
     await trace({
       log: "开始更新 maimai 成绩",
@@ -140,7 +140,7 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
     const trace = useTrace(traceUUID);
     const stage = useStage(trace);
     const cj = new CookieJar();
-    const fetch = async (url, options) => await fetchWithCookie(cj, url, options);
+    const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
     
     await trace({
       log: "开始更新 chunithm 成绩",
