@@ -5,7 +5,7 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "dev": "node main.js",
+    "dev": "node main.js 127.0.0.1",
     "start": "forever -l forever.log -o out.log -e err.log -a start main.js",
     "stop": "forever stop main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -33,7 +33,8 @@
     "http-parser-js": "^0.5.8",
     "lowdb": "^5.0.5",
     "node-fetch": "^3.3.0",
-    "node-fetch-cookies": "^2.0.4"
+    "node-fetch-cookies": "^2.0.4",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "node": "^16.19.0"

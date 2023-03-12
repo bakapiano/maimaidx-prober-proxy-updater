@@ -65,6 +65,7 @@
 import { postForm } from "../api/form.js";
 import { defineComponent, ref, onMounted } from "vue";
 import { useMessage, useDialog } from "naive-ui";
+import { RocketOutline } from "@vicons/ionicons5"
 
 const props = defineProps(["proxyStatus"]);
 const message = useMessage();
@@ -128,15 +129,15 @@ function selectContent() {
   const selection = window.getSelection()
   range.selectNode(node)
   selection.removeAllRanges()
-  window.getSelection().addRange(range)
+  window.getSelection().addRange(range) 
 }
 
 async function genShortcut(type) {
   if (!await post(type, false)) return;
   showModal.value = true
-  let url = `${window.location.href}shortcut?`
-  const successPageUrl = window.location.href + "#Success"
-  url += `successPageUrl=${encodeURIComponent(successPageUrl)}`
+  let url = `https://${window.location.host}/shortcut?`
+  const callbackHost = window.location.host
+  url += `callbackHost=${encodeURIComponent(callbackHost)}`
   url += `&username=${encodeURIComponent(formValue.value.username)}`
   url += `&password=${encodeURIComponent(formValue.value.password)}`
   url += `&type=${encodeURIComponent(type)}`

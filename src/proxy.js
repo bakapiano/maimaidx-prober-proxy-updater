@@ -1,11 +1,12 @@
 import { delValue, getValue } from "./db.js";
+import { updateChunithmScore, updateMaimaiScore } from "./crawler.js";
 
+import { HTTPParser } from "http-parser-js";
 import config from "../config.js";
+import { v4 as genUUID } from "uuid"
 import http from "http";
 import net from "net";
-import { updateChunithmScore, updateMaimaiScore } from "./crawler.js";
 import url from "url";
-import { HTTPParser } from "http-parser-js";
 
 const proxyServer = http.createServer(httpOptions);
 
@@ -35,32 +36,35 @@ function checkHostInWhiteList(target) {
 async function onAuthHook(href) {
   console.log("Successfully hook auth request!");
 
+  const protocol = config.dev ? "http" : "https"
   const target = href.replace("http", "https");
   const key = url.parse(target, true).query.r;
-
   const value = await getValue(key);
+  
   if (value === undefined) {
-    return "https://maimai.bakapiano.com/#Success";
+    return `${protocol}://${config.host}/#/error`;
   }
 
-  console.log(key, value);
-
-  let { username, password, successPageUrl } = value;
+  const { username, password, callbackHost } = value;
+  const baseHost = callbackHost || config.host
+  const errorPageUrl = `${protocol}://${baseHost}/#/error`
+  const traceUUID = genUUID()
+  const tracePageUrl = `${protocol}://${baseHost}/#/trace/${traceUUID}/`
   delValue(key);
 
-  if (successPageUrl === undefined) {
-    successPageUrl = "https://maimai.bakapiano.com/#Success"
+  console.log(username, password, baseHost)
+  if (!username || !password) {
+    return errorPageUrl;
   }
-
+  
   if (target.includes('maimai-dx')) {
-    updateMaimaiScore(username, password, target);
+    updateMaimaiScore(username, password, target, traceUUID);
   } else if (target.includes('chunithm')) {
-    updateChunithmScore(username, password, target);
-  } else {
-    throw new Error('ongeki?');
+    updateChunithmScore(username, password, target, traceUUID);
+  } else { // ongeki? hahaha
+    return errorPageUrl
   }
-
-  return successPageUrl;
+  return tracePageUrl;
 }
 
 // handle http proxy requests

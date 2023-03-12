@@ -1,8 +1,8 @@
 import httpRequest from "../request/index"
 
 async function postForm(username, password, type) {
-    const successPageUrl = window.location.href + "#Success"
-    const result = await httpRequest.post("/auth", {username, password, successPageUrl, type})
+    const callbackHost = window.location.host
+    const result = await httpRequest.post("/auth", {username, password, callbackHost, type})
     return result
 }
 
