@@ -3,6 +3,20 @@ import { useStage, useTrace } from "./trace.js";
 
 import fetch from "node-fetch";
 
+async function fetchWithCookieWithRetry(cj, url, options) {
+  for (let i = 0; i < 5; i++) {
+    try {
+      return await fetchWithCookie(cj, url, options);
+    } catch (e) {
+      console.log(`delay due to fetch failed with attempt ${url} #${i + 1}`);
+
+      await new Promise(r => {
+        setTimeout(r, 1000);
+      });
+    }
+  }
+}
+
 async function verifyProberAccount(username, password) {
   const res = await fetch(
     "https://www.diving-fish.com/api/maimaidxprober/login",
