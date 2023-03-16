@@ -1,4 +1,4 @@
-import { delValue, getValue, setValue } from "./db.js";
+import { delValue, getValue, increaseCount, setValue } from "./db.js";
 import {
   getAuthUrl,
   updateMaimaiScore,
@@ -54,10 +54,16 @@ async function serve(serverReq, serverRes, data, redirect) {
   const { redirect_uri } = resultUrl.query;
   const key = url.parse(redirect_uri, true).query.r;
 
-  await setValue(key, { username, password, callbackHost });
+  if (key === "count") {
+    serverRes.status(400).send("What do you want to do?")
+    return
+  }
 
+  await setValue(key, { username, password, callbackHost });
   setTimeout(() => delValue(key), 1000 * 60 * 5);
 
+  increaseCount()
+  
   redirect === true
     ? serverRes.redirect(href)
     : serverRes.status(200).send(href);
@@ -77,6 +83,11 @@ app.get("/trace", async (serverReq, serverRes) => {
     ? serverRes.status(400).send("请提供uuid")
     : serverRes.send(await getTrace(uuid));
 });
+
+app.get("/count", async (serverReq, serverRes) => {
+  const count = await getValue("count");
+  serverRes.status(200).send({count});
+})
 
 app.use(express.static("static"));
 

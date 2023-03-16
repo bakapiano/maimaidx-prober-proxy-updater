@@ -94,7 +94,7 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
 
     for (let diff = 0; diff < 5; diff++) {
       const progress = 20 + diff * 20;
-      await stage(`更新 ${["basic", "advance", "export", "master", "Re:master"][diff]} 难度分数`, progress, async () => {
+      await stage(`更新 ${["Basic", "Advanced", "Expert", "Master", "Re:Master"][diff]} 难度分数`, progress, async () => {
           let body = undefined;
 
           await stage("获取分数", progress, async () => {
@@ -197,13 +197,13 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
     ];
 
     const descriptions = [
-      "更新 basic 难度分数",
-      "更新 advanced 难度分数",
-      "更新 expert 难度分数",
-      "更新 master 难度分数",
-      "更新 ultima 难度分数",
-      "更新 worldsEnd 难度分数",
-      "更新最近游玩 rating 分数",
+      "更新 Basic 难度分数",
+      "更新 Advanced 难度分数",
+      "更新 Expert 难度分数",
+      "更新 Master 难度分数",
+      "更新 Ultima 难度分数",
+      "更新 WorldsEnd 难度分数",
+      "更新最近游玩 Rating 分数",
     ]
 
     const _t = cj.cookies.get("chunithm.wahlap.com").get("_t").value;

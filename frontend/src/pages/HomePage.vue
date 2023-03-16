@@ -1,9 +1,10 @@
 <template>
   <n-space vertical>
+    <statistic />
     <proxy-checker v-model="proxyStatus"></proxy-checker>
     <prober-from :proxy-status="proxyStatus"></prober-from>
     <frequently-asked />
-    <tutorial></tutorial>
+    <tutorial />
   </n-space>
 </template>
 
@@ -12,6 +13,7 @@ import ProxyChecker from "../components/ProxyChecker.vue";
 import FrequentlyAsked from "../components/FrequentlyAsked.vue";
 import Tutorial from "../components/Tutorial.vue";
 import ProberFrom from "../components/ProberFrom.vue";
+import Statistic from "../components/Statistic.vue"
 import { watch, ref, onMounted } from "vue";
 
 const proxyStatus = ref(false);

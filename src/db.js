@@ -1,8 +1,9 @@
-import { Low, Memory } from "lowdb";
+import { JSONFile } from 'lowdb/node'
+import { Low } from "lowdb";
 
-var db = new Low(new Memory());
+var db = new Low(new JSONFile("db.json"));
 
-db.data = {};
+db.data ||= { count: 0 };
 db.write();
 
 async function setValue(key, value) {
@@ -24,4 +25,9 @@ async function delValue(key) {
   }
 }
 
-export { setValue, getValue, delValue };
+async function increaseCount() {
+  db.data.count += 1
+  await db.write()
+}
+
+export { setValue, getValue, delValue, increaseCount };
