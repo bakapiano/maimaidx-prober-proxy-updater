@@ -1,60 +1,88 @@
 <template>
   <n-spin :show="loading">
     <n-card class="card" title="导入数据">
-      <n-space vertical>
-        <n-form
-          ref="formRef"
-          label-placement="left"
-          :model="formValue"
-          :rules="rules"
+      <n-tabs
+        default-value="maimai-dx"
+        size="large"
+        animated
+        @update:value="(value) => (updateType = value)"
+      >
+        <n-tab-pane
+          :name="updateType"
+          :tab="updateType"
+          v-for="(updateType, index) in ['maimai-dx', 'chunithm']"
+          v-bind:key="updateType"
         >
-          <n-form-item path="username">
-            <n-input
-              placeholder="查分器账号"
-              v-model:value="formValue.username"
-            />
-          </n-form-item>
-          <n-form-item path="password">
-            <n-input
-              type="password"
-              show-password-on="click"
-              placeholder="查分器密码"
-              v-model:value="formValue.password"
-            />
-          </n-form-item>
           <n-space vertical>
-            <n-checkbox value="" @change="rememberChange" :checked="remember">
-              记住账号和密码
-            </n-checkbox>
+            <n-form
+              class="form"
+              ref="formRef"
+              label-placement="left"
+              :model="formValue"
+              :rules="rules"
+            >
+              <n-form-item path="username">
+                <n-input
+                  placeholder="查分器账号"
+                  v-model:value="formValue.username"
+                />
+              </n-form-item>
+              <n-form-item path="password">
+                <n-input
+                  type="password"
+                  show-password-on="click"
+                  placeholder="查分器密码"
+                  v-model:value="formValue.password"
+                />
+              </n-form-item>
+              <n-space vertical>
+                <n-checkbox
+                  value=""
+                  @change="rememberChange"
+                  :checked="remember"
+                >
+                  记住账号和密码
+                </n-checkbox>
+              </n-space>
+            </n-form>
           </n-space>
-        </n-form>
-      </n-space>
+        </n-tab-pane>
+      </n-tabs>
       <template #action>
         <n-space justify="space-between">
           <n-space>
-            <n-button type="success" @click="()=>submit('maimai-dx')">更新舞萌DX</n-button>
-            <n-button type="success" @click="()=>submit('chunithm')">更新中二节奏</n-button>
+            <n-button type="success" @click="() => submit(updateType)">
+              更新
+            </n-button>
             <n-button v-model:value="remember" @click="clearForm" type="error">
               清空
             </n-button>
           </n-space>
           <n-space>
-            生成快速跳转链接
-            <n-a @click="()=>genShortcut('maimai-dx')">&nbsp;舞萌DX</n-a>
-            <n-a @click="()=>genShortcut('chunithm')">&nbsp;中二节奏</n-a>
-            </n-space>
+            <n-a @click="() => genShortcut(updateType)">
+              生成快速跳转链接 -
+              {{ { "maimai-dx": "舞萌", chunithm: "中二" }[updateType] }}
+            </n-a>
+          </n-space>
         </n-space>
       </template>
     </n-card>
 
-    <n-modal v-model:show="showModal" preset="card" style="max-width:1080px" title="快速跳转链接">
+    <n-modal
+      v-model:show="showModal"
+      preset="card"
+      style="max-width: 1080px"
+      title="快速跳转链接"
+    >
       <n-p>
-        使用方法：将链接发送到微信任意聊天框中（推荐文件传输助手），<strong>代理配置正确后</strong>点击链接即可进行数据更新。<strong>注意：短链接包含你的查分器账户和密码信息，请不要将链接分享给其他人！</strong>
+        使用方法：将链接发送到微信任意聊天框中（推荐文件传输助手），<strong>代理配置正确后</strong>点击链接即可进行数据更新。<strong
+          >注意：短链接包含你的查分器账户和密码信息，请不要将链接分享给其他人！</strong
+        >
       </n-p>
       点击选中链接：
       <n-tag type="info" @click="selectContent" @touchstart="selectContent">
-        <p id='short-cut' ref="shortCutRef">
-          {{shortCut}}
+        <p id="short-cut" ref="shortCutRef">
+          {{ shortCut }}
         </p>
       </n-tag>
     </n-modal>
@@ -65,7 +93,7 @@
 import { postForm } from "../api/form.js";
 import { defineComponent, ref, onMounted } from "vue";
 import { useMessage, useDialog } from "naive-ui";
-import { RocketOutline } from "@vicons/ionicons5"
+import { RocketOutline } from "@vicons/ionicons5";
 
 const props = defineProps(["proxyStatus"]);
 const message = useMessage();
@@ -91,6 +119,7 @@ const rules = ref({
 const shortCut = ref("");
 const showModal = ref(false);
 const shortCutRef = ref(null);
+const updateType = ref("maimai-dx");
 
 onMounted(() => {
   remember.value = window.localStorage.remember === "true" ? true : false;
@@ -124,25 +153,25 @@ function rememberChange(value) {
 }
 
 function selectContent() {
-  const range = document.createRange()
-  const node = document.getElementById('short-cut')
-  const selection = window.getSelection()
-  range.selectNode(node)
-  selection.removeAllRanges()
-  window.getSelection().addRange(range) 
+  const range = document.createRange();
+  const node = document.getElementById("short-cut");
+  const selection = window.getSelection();
+  range.selectNode(node);
+  selection.removeAllRanges();
+  window.getSelection().addRange(range);
 }
 
 async function genShortcut(type) {
-  if (!await post(type, false)) return;
-  showModal.value = true
-  let url = `https://${window.location.host}/shortcut?`
-  const callbackHost = window.location.host
-  url += `callbackHost=${encodeURIComponent(callbackHost)}`
-  url += `&username=${encodeURIComponent(formValue.value.username)}`
-  url += `&password=${encodeURIComponent(formValue.value.password)}`
-  url += `&type=${encodeURIComponent(type)}`
-  console.log(url)
-  shortCut.value = url
+  if (!(await post(type, false))) return;
+  showModal.value = true;
+  let url = `https://${window.location.host}/shortcut?`;
+  const callbackHost = window.location.host;
+  url += `callbackHost=${encodeURIComponent(callbackHost)}`;
+  url += `&username=${encodeURIComponent(formValue.value.username)}`;
+  url += `&password=${encodeURIComponent(formValue.value.password)}`;
+  url += `&type=${encodeURIComponent(type)}`;
+  console.log(url);
+  shortCut.value = url;
 }
 
 async function post(type, jump = true) {
@@ -151,7 +180,7 @@ async function post(type, jump = true) {
     const result = await postForm(
       formValue.value.username,
       formValue.value.password,
-      type,
+      type
     );
     console.log(result.data);
     saveToLocalStorage();
@@ -160,28 +189,20 @@ async function post(type, jump = true) {
     }
 
     loading.value = false;
-    return true
-  } 
-  catch (err) {
+    return true;
+  } catch (err) {
     console.log(err);
     message.error(err.response.data ? err.response.data : err.message);
     clearLocalStorage();
   }
 
   loading.value = false;
-  return false
-}
-
-function submitChuni() {
-  return submit('chunithm');
-}
-
-function submitMai() {
-  return submit('maimai-dx');
+  return false;
 }
 
 function submit(type) {
-  formRef.value?.validate((errors) => {
+  console.log(type);
+  formRef.value[0].validate((errors) => {
     console.log(props.proxyStatus);
     if (!errors) {
       if (!props.proxyStatus) {
@@ -204,4 +225,7 @@ function submit(type) {
 </script>
 
 <style scoped>
+.form {
+  margin-top: 6px;
+}
 </style>

@@ -10,7 +10,7 @@
           <n-grid cols="12" responsive="screen" item-responsive>
             <n-gi span="1 l:2" />
             <n-gi span="10 l:8">
-              <n-page-header title="舞萌 DX 查分器数据更新器" class="page-header" :back="router.path === '/' ? undefined : () => router.push('/')">
+              <n-page-header title="舞萌 DX & 中二节奏查分器数据更新器" class="page-header" :back="router.path === '/' ? undefined : () => router.push('/')">
                 <template #extra>
                   <n-button
                     @click="switchTheme"
