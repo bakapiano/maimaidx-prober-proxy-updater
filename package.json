@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "node main.js 127.0.0.1",
-    "start": "cross-env forever -o $INIT_CWD\\log\\out.log -e $INIT_CWD\\log\\err.log -a start main.js",
+    "start": "cross-env forever -o $INIT_CWD/log/out.log -e $INIT_CWD/log/err.log -a start main.js",
     "stop": "cross-env forever stop main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
