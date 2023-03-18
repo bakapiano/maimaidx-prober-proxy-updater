@@ -6,8 +6,8 @@
   "main": "main.js",
   "scripts": {
     "dev": "node main.js 127.0.0.1",
-    "start": "forever -l forever.log -o out.log -e err.log -a start main.js",
-    "stop": "forever stop main.js",
+    "start": "cross-env forever -o $INIT_CWD\\log\\out.log -e $INIT_CWD\\log\\err.log -a start main.js",
+    "stop": "cross-env forever stop main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,12 +28,14 @@
   "dependencies": {
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "express": "^4.18.1",
     "forever": "^4.0.3",
     "http-parser-js": "^0.5.8",
     "lowdb": "^5.0.5",
     "node-fetch": "^3.3.0",
     "node-fetch-cookies": "^2.0.4",
+    "node-schedule": "^2.1.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

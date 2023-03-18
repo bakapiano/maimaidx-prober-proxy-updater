@@ -1,39 +1,61 @@
-import { JSONFile } from 'lowdb/node'
-import { Low } from "lowdb";
+import { Low, Memory } from "lowdb";
 
-var db = new Low(new JSONFile("db.json"));
-db.read().then(() => {
-  if (!db.data) {
-    db.data = { count: 0}
-    db.write()
+import { JSONFile } from 'lowdb/node'
+
+var fileDB = new Low(new JSONFile("db.json"));
+var memoDB = new Low(new Memory())
+
+fileDB.read().then(() => {
+  if (!fileDB.data) {
+    fileDB.data = { count: 0 }
+    fileDB.write()
   }
 })
 
+memoDB.read().then(() => {
+  memoDB.data = { time: {} }
+})
+
 async function setValue(key, value) {
-  await db.read();
-  db.data[key] = value;
-  await db.write();
+  memoDB.data[key] = value;
+  memoDB.data.time[key] = (new Date()).getTime()
 }
 
 async function getValue(key) {
-  await db.read();
-  return db.data[key];
+  return memoDB.data[key];
 }
 
 async function delValue(key) {
-  await db.read();
-  if (db.data[key] !== undefined) {
-    delete db.data[key];
-    await db.write();
+  if (memoDB.data[key] !== undefined) {
+    delete memoDB.data[key];
+  }
+  if (memoDB.data.time[key] !== undefined) {
+    delete memoDB.data.time[key];
   }
 }
 
-async function increaseCount() {
-  await db.read();
-  if (db.data.count === undefined) 
-    db.data.count = 0;
-  db.data.count += 1;
-  await db.write();
+async function clearExpireData() {
+  Object.keys(memoDB.data.time).forEach(async (key) => {
+    const current = (new Date()).getTime();
+    const delta = current - (memoDB.data.time[key]);
+    if (delta >= 1000 * 60 * 60 * 30) {
+      await delValue(key)
+    } 
+  });
 }
 
-export { setValue, getValue, delValue, increaseCount };
+function increaseCount() {
+  if (fileDB.data.count === undefined) 
+    fileDB.data.count = 0;
+  fileDB.data.count += 1;
+}
+
+function getCount() {
+  return fileDB.data.count;
+}
+
+async function saveCount() {
+  await fileDB.write();
+}
+
+export { setValue, getValue, delValue, increaseCount, getCount, clearExpireData, saveCount };

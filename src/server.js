@@ -1,9 +1,9 @@
-import { delValue, getValue, increaseCount, setValue } from "./db.js";
 import {
   getAuthUrl,
   updateMaimaiScore,
   verifyProberAccount,
 } from "./crawler.js";
+import { getCount, increaseCount, setValue } from "./db.js";
 
 import bodyParser from "body-parser";
 import config from "../config.js";
@@ -60,7 +60,7 @@ async function serve(serverReq, serverRes, data, redirect) {
   }
 
   await setValue(key, { username, password, callbackHost });
-  setTimeout(() => delValue(key), 1000 * 60 * 5);
+  // setTimeout(() => delValue(key), 1000 * 60 * 5);
 
   increaseCount()
   
@@ -85,7 +85,7 @@ app.get("/trace", async (serverReq, serverRes) => {
 });
 
 app.get("/count", async (serverReq, serverRes) => {
-  const count = await getValue("count");
+  const count = getCount();
   serverRes.status(200).send({count});
 })
 

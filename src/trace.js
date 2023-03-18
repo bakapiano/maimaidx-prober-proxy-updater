@@ -37,11 +37,11 @@ async function getTrace(uuid) {
 }
 
 async function expireTrace(uuid) {
-  setTimeout(() => {
-    delValue(`${PREFIX}-${uuid}-${PROGRESS_KEY}`);
-    delValue(`${PREFIX}-${uuid}-${LOG_KEY}`);
-    delValue(`${PREFIX}-${uuid}-${STATUS_KEY}`);
-  }, TRACE_EXPIRED_TIME);
+  // setTimeout(() => {
+  //   delValue(`${PREFIX}-${uuid}-${PROGRESS_KEY}`);
+  //   delValue(`${PREFIX}-${uuid}-${LOG_KEY}`);
+  //   delValue(`${PREFIX}-${uuid}-${STATUS_KEY}`);
+  // }, TRACE_EXPIRED_TIME);
 }
 
 function useTrace(uuid) {
