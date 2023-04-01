@@ -63,7 +63,7 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
       progress: 0,
     });
 
-    await stage("登录公众号", 20, async () => {
+    await stage("登录公众号", 10, async () => {
       await fetch(authUrl, {
         headers: {
           Host: "tgk-wcaime.wahlap.com",
@@ -92,12 +92,14 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
       }
     });
 
+    const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"]
+    const tasks = []
     for (let diff = 0; diff < 5; diff++) {
-      const progress = 20 + diff * 20;
-      await stage(`更新 ${["Basic", "Advanced", "Expert", "Master", "Re:Master"][diff]} 难度分数`, progress, async () => {
+      const progress = 9;
+      const task = stage(`更新 ${descriptions[diff]} 难度分数`, 0, async () => {
           let body = undefined;
 
-          await stage("获取分数", progress, async () => {
+          await stage(`获取 ${descriptions[diff]} 分数`, progress, async () => {
             const result = await fetch(
               `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${diff}`
             );
@@ -106,7 +108,7 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
               .replace(/\s+/g, " ");
           });
 
-          await stage("上传分数至 diving-fish 查分器数据库", progress, async () => {
+          await stage(`上传 ${descriptions[diff]} 分数至 diving-fish 查分器数据库`, progress, async () => {
               const uploadResult = await fetch(
                 "https://www.diving-fish.com/api/pageparser/page",
                 {
@@ -116,17 +118,20 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
                 }
               );
 
-              const log = `diving-fish 上传接口返回消息: ${await uploadResult.text()}`;
+              const log = `diving-fish 上传 ${descriptions[diff]} 分数接口返回消息: ${await uploadResult.text()}`;
               await trace({log});
             }
           );
         }
       );
+      tasks.push(task)
     }
+
+    await Promise.all(tasks)
 
     await trace({
       log: "maimai 数据更新完成",
-      process: 100,
+      process: 0,
       status: "success",
     });
     
@@ -148,7 +153,7 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
       progress: 0,
     });
     
-    await stage("登录公众号", 12.5, async ()=>{
+    await stage("登录公众号", 6.25, async ()=>{
       const authResult = await fetch(authUrl, {
         headers: {
           Connection: "keep-alive",
@@ -197,24 +202,24 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
     ];
 
     const descriptions = [
-      "更新 Basic 难度分数",
-      "更新 Advanced 难度分数",
-      "更新 Expert 难度分数",
-      "更新 Master 难度分数",
-      "更新 Ultima 难度分数",
-      "更新 WorldsEnd 难度分数",
-      "更新最近游玩 Rating 分数",
+      "Basic",
+      "Advanced",
+      "Expert",
+      "Master",
+      "Ultima",
+      "WorldsEnd",
+      "最近游玩",
     ]
 
     const _t = cj.cookies.get("chunithm.wahlap.com").get("_t").value;
 
+    const tasks = []
     for (let i = 0; i < 7; i ++) {
       const url = urls[i]
-      const progress = 12.5 * (i + 1)
-      await stage(descriptions[i], progress, async () => {
+      const task = stage(`更新 ${descriptions[i]} 分数`, 0, async () => {
         let resultHtml = undefined
         
-        await stage("获取分数", progress, async()=>{
+        await stage(`获取 ${descriptions[i]} 分数`, 6.25, async()=>{
           if (url[0]) {
             await fetch("https://chunithm.wahlap.com/mobile" + url[0], {
               method: "POST",
@@ -229,7 +234,7 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
           resultHtml = await result.text();
         })
         
-        await stage("上传分数至 diving-fish 查分器数据库", progress, async () => {
+        await stage(`上传 ${descriptions[i]} 分数至 diving-fish 查分器数据库`, 6.25, async () => {
           const uploadResult = await fetch(
             "https://www.diving-fish.com/api/chunithmprober/player/update_records_html" +
               (url[1].includes("Recent") ? "?recent=1" : ""),
@@ -239,15 +244,18 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
             }
           );
     
-          const log = `diving-fish 上传接口返回消息: ${await uploadResult.text()}`
+          const log = `diving-fish 上传 ${descriptions[i]} 分数接口返回消息: ${await uploadResult.text()}`
           await trace({log})
         })
       })
+      tasks.push(task)
     }
+
+    await Promise.all(tasks)
 
     await trace({
       log: "chunithm 数据更新完成",
-      progress: 100,
+      progress: 6.25,
       status: "success",
     });
     

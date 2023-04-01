@@ -21,7 +21,9 @@ async function appendLog(uuid, text) {
 }
 
 async function setProgress(uuid, progress) {
-  await setValue(`${PREFIX}-${uuid}-${PROGRESS_KEY}`, progress);
+  const key = `${PREFIX}-${uuid}-${PROGRESS_KEY}`;
+  const current = Number(await getValue(key)) || 0;
+  await setValue(key, current + progress);
 }
 
 async function setStatus(uuid, status) {
@@ -50,7 +52,7 @@ function useTrace(uuid) {
     const { status, log, progress } = payload;
     status && (await setStatus(uuid, status));
     log && (await appendLog(uuid, log));
-    progress !== undefined && await setProgress(uuid,progress);
+    progress !== undefined && await setProgress(uuid, progress);
     // Auto expire trace in db
     (status === "success" || status === "failed") && await expireTrace(uuid);
   };
