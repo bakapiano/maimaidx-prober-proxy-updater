@@ -1,4 +1,4 @@
-import { delValue, getValue, setValue } from "./db.js";
+import { appendValue, getValue, setValue } from "./db.js";
 
 const PREFIX = "RESULT";
 
@@ -6,18 +6,11 @@ const LOG_KEY = "LOG";
 const PROGRESS_KEY = "PROGRESS";
 const STATUS_KEY = "STATUS";
 
-const TRACE_EXPIRED_TIME = 1000 * 60 * 10;
-
 async function appendLog(uuid, text) {
-  const log = (await getValue(`${PREFIX}-${uuid}-${LOG_KEY}`)) || "";
-  await setValue(
-    `${PREFIX}-${uuid}-${LOG_KEY}`,
-    log +
-      `[${new Date().toLocaleString("en", {
-        timeZone: "Asia/Shanghai",
-      }).split(",")[1].trim()}] ${text}` +
-      "\n"
-  );
+  const key = `${PREFIX}-${uuid}-${LOG_KEY}`;
+  const time = new Date().toLocaleString("en", {timeZone: "Asia/Shanghai",}).split(",")[1].trim()
+  const log  = `[${time}] ${text}` + "\n"
+  await appendValue(key, log, "");
 }
 
 async function setProgress(uuid, progress) {
@@ -38,14 +31,6 @@ async function getTrace(uuid) {
   };
 }
 
-async function expireTrace(uuid) {
-  // setTimeout(() => {
-  //   delValue(`${PREFIX}-${uuid}-${PROGRESS_KEY}`);
-  //   delValue(`${PREFIX}-${uuid}-${LOG_KEY}`);
-  //   delValue(`${PREFIX}-${uuid}-${STATUS_KEY}`);
-  // }, TRACE_EXPIRED_TIME);
-}
-
 function useTrace(uuid) {
   return async (payload) => {
     console.log(uuid, payload);
@@ -54,7 +39,7 @@ function useTrace(uuid) {
     log && (await appendLog(uuid, log));
     progress !== undefined && await setProgress(uuid, progress);
     // Auto expire trace in db
-    (status === "success" || status === "failed") && await expireTrace(uuid);
+    // (status === "success" || status === "failed") && await expireTrace(uuid);
   };
 }
 
@@ -83,4 +68,4 @@ function useStage(trace) {
   };
 }
 
-export { appendLog, setProgress, getTrace, expireTrace, setStatus, useTrace, useStage };
+export { appendLog, setProgress, getTrace, setStatus, useTrace, useStage };

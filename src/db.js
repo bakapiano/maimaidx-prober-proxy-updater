@@ -25,6 +25,15 @@ async function getValue(key) {
   return memoDB.data[key];
 }
 
+async function appendValue(key, value, defaultValue) {
+  const current = memoDB.data[key];
+  if (current === undefined) {
+    memoDB.data[key] = defaultValue;
+  }
+  memoDB.data[key] = current + value;
+  memoDB.data.time[key] = (new Date()).getTime()
+}
+
 async function delValue(key) {
   if (memoDB.data[key] !== undefined) {
     delete memoDB.data[key];
@@ -58,4 +67,4 @@ async function saveCount() {
   await fileDB.write();
 }
 
-export { setValue, getValue, delValue, increaseCount, getCount, clearExpireData, saveCount };
+export { setValue, getValue, delValue, increaseCount, getCount, clearExpireData, saveCount, appendValue };
