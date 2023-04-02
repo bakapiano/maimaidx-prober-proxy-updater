@@ -62,7 +62,7 @@
               style="z-index: 998244353"
               collapse-mode="width"
               :collapsed-width="0"
-              :width="240"
+              :width="96"
               :collapsed="collapsed"
               :collapsed-trigger-style="'right: -20px'"
               @collapse="collapsed = true"
