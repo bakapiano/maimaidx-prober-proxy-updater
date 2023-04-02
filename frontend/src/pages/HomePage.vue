@@ -1,27 +1,26 @@
 <template>
   <n-space vertical>
-    <statistic />
     <proxy-checker v-model="proxyStatus"></proxy-checker>
     <prober-from :proxy-status="proxyStatus"></prober-from>
     <frequently-asked />
+    <statistic />
     <tutorial />
   </n-space>
 </template>
 
 <script setup>
-import ProxyChecker from "../components/ProxyChecker.vue";
-import FrequentlyAsked from "../components/FrequentlyAsked.vue";
-import Tutorial from "../components/Tutorial.vue";
-import ProberFrom from "../components/ProberFrom.vue";
-import Statistic from "../components/Statistic.vue"
-import { watch, ref, onMounted } from "vue";
+import ProxyChecker from '../components/ProxyChecker.vue'
+import FrequentlyAsked from '../components/FrequentlyAsked.vue'
+import Tutorial from '../components/Tutorial.vue'
+import ProberFrom from '../components/ProberFrom.vue'
+import Statistic from '../components/Statistic.vue'
+import { watch, ref } from 'vue'
 
-const proxyStatus = ref(false);
+const proxyStatus = ref(false)
 
-watch(proxyStatus, (newValue, oldValue) => {
-  console.log(newValue);
-});
+watch(proxyStatus, (newValue) => {
+  console.log(newValue)
+})
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

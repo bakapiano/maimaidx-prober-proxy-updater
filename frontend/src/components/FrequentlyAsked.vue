@@ -72,23 +72,19 @@
 </template>
 
 <script setup>
-import { NTime, useMessage } from "naive-ui";
-import { LogoGithub, MailOpenSharp } from "@vicons/ionicons5";
-import BilibiliLogo from "./BilibiliLogo.vue";
-import { ref } from "vue";
+import { useMessage } from 'naive-ui'
+import { LogoGithub, MailOpenSharp } from '@vicons/ionicons5'
+import BilibiliLogo from './BilibiliLogo.vue'
 
-const message = useMessage();
-
-const show = ref(false);
-const success = ref(true);
+const message = useMessage()
 
 function contactQQ() {
-  navigator.clipboard.writeText("2514965141");
-  message.success("QQ号已复制到剪切板");
+  navigator.clipboard.writeText('2514965141')
+  message.success('QQ号已复制到剪切板')
   // openWindow("mqqwpa://im/chat?chat_type=wpa&uin=2514965141&version=1&src_type=web&web_src=oicqzone.com");
 }
 
 function openWindow(url) {
-  window.open(url);
+  window.open(url)
 }
 </script>

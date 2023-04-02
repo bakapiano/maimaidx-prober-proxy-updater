@@ -5,11 +5,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && rimraf ../static && (mv dist ../static || move dist ../static)",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "format": "prettier .  --write"
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "canvas-confetti": "^1.5.1",
+    "dom-to-image": "^2.6.0",
     "rimraf": "^4.1.1",
     "unplugin-auto-import": "^0.11.2",
     "vue": "^3.2.25",
@@ -18,8 +20,13 @@
   "devDependencies": {
     "@vicons/ionicons5": "^0.12.0",
     "@vitejs/plugin-vue": "^2.3.3",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vue": "^9.10.0",
     "http-proxy-middleware": "^2.0.6",
     "naive-ui": "^2.28.4",
+    "prettier": "2.8.7",
     "unplugin-vue-components": "^0.22.4",
     "vfonts": "^0.0.3",
     "vite": "^2.9.15"

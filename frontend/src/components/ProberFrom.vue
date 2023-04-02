@@ -8,43 +8,47 @@
         @update:value="(value) => (updateType = value)"
       >
         <n-tab-pane
+          v-for="updateType in ['maimai-dx', 'chunithm']"
+          :key="updateType"
           :name="updateType"
           :tab="updateType"
-          v-for="(updateType, index) in ['maimai-dx', 'chunithm']"
-          v-bind:key="updateType"
         >
           <n-space vertical>
             <n-form
-              class="form"
               ref="formRef"
+              class="form"
               label-placement="left"
               :model="formValue"
               :rules="rules"
             >
               <n-form-item path="username">
                 <n-input
-                  placeholder="查分器账号"
                   v-model:value="formValue.username"
+                  placeholder="查分器账号"
                 />
               </n-form-item>
               <n-form-item path="password">
                 <n-input
+                  v-model:value="formValue.password"
                   type="password"
                   show-password-on="click"
                   placeholder="查分器密码"
-                  v-model:value="formValue.password"
                 />
               </n-form-item>
               <n-space vertical>
                 <n-checkbox
                   value=""
-                  @change="rememberChange"
                   :checked="remember"
+                  @change="rememberChange"
                 >
                   记住账号和密码
                 </n-checkbox>
               </n-space>
             </n-form>
+            <!-- <n-a @click="() => genShortcut(updateType)">
+              生成快速更新链接 - 
+              {{ { "maimai-dx": "舞萌", chunithm: "中二" }[updateType] }}
+            </n-a> -->
           </n-space>
         </n-tab-pane>
       </n-tabs>
@@ -54,16 +58,13 @@
             <n-button type="success" @click="() => submit(updateType)">
               更新
             </n-button>
-            <n-button v-model:value="remember" @click="clearForm" type="error">
+            <n-button v-model:value="remember" type="error" @click="clearForm">
               清空
             </n-button>
           </n-space>
-          <n-space>
-            <n-a @click="() => genShortcut(updateType)">
-              生成快速跳转链接 -
-              {{ { "maimai-dx": "舞萌", chunithm: "中二" }[updateType] }}
-            </n-a>
-          </n-space>
+          <div style="display: flex; align-items: center; height: 100%">
+            <n-a @click="() => genShortcut(updateType)"> 快速更新链接 </n-a>
+          </div>
         </n-space>
       </template>
     </n-card>
@@ -90,137 +91,136 @@
 </template>
 
 <script setup>
-import { postForm } from "../api/form.js";
-import { defineComponent, ref, onMounted } from "vue";
-import { useMessage, useDialog } from "naive-ui";
-import { RocketOutline } from "@vicons/ionicons5";
+import { postForm } from '../api/form.js'
+import { ref, onMounted } from 'vue'
+import { useMessage, useDialog } from 'naive-ui'
 
-const props = defineProps(["proxyStatus"]);
-const message = useMessage();
-const dialog = useDialog();
+const props = defineProps(['proxyStatus'])
+const message = useMessage()
+const dialog = useDialog()
 
-const loading = ref(false);
-const formRef = ref(null);
+const loading = ref(false)
+const formRef = ref(null)
 const formValue = ref({
-  username: "",
-  password: "",
-});
-const remember = ref(false);
+  username: '',
+  password: '',
+})
+const remember = ref(false)
 const rules = ref({
   username: {
     required: true,
-    message: "请输入查分器账户",
+    message: '请输入查分器账户',
   },
   password: {
     required: true,
-    message: "请输入查分器密码",
+    message: '请输入查分器密码',
   },
-});
-const shortCut = ref("");
-const showModal = ref(false);
-const shortCutRef = ref(null);
-const updateType = ref("maimai-dx");
+})
+const shortCut = ref('')
+const showModal = ref(false)
+const shortCutRef = ref(null)
+const updateType = ref('maimai-dx')
 
 onMounted(() => {
-  remember.value = window.localStorage.remember === "true" ? true : false;
+  remember.value = window.localStorage.remember === 'true' ? true : false
   if (window.localStorage.username !== undefined)
-    formValue.value.username = window.localStorage.username;
+    formValue.value.username = window.localStorage.username
   if (window.localStorage.password !== undefined)
-    formValue.value.password = window.localStorage.password;
-});
+    formValue.value.password = window.localStorage.password
+})
 
 function saveToLocalStorage() {
-  if (!remember.value) return;
-  window.localStorage.username = formValue.value.username;
-  window.localStorage.password = formValue.value.password;
+  if (!remember.value) return
+  window.localStorage.username = formValue.value.username
+  window.localStorage.password = formValue.value.password
 }
 
 function clearLocalStorage() {
-  delete window.localStorage.username;
-  delete window.localStorage.password;
+  delete window.localStorage.username
+  delete window.localStorage.password
 }
 
 function clearForm() {
-  console.log("clear-form");
-  clearLocalStorage();
-  formValue.value.username = formValue.value.password = "";
+  console.log('clear-form')
+  clearLocalStorage()
+  formValue.value.username = formValue.value.password = ''
 }
 
 function rememberChange(value) {
-  remember.value = window.localStorage.remember = value;
-  value ? saveToLocalStorage() : clearLocalStorage();
-  console.log(value, remember.value, window.localStorage.remember);
+  remember.value = window.localStorage.remember = value
+  value ? saveToLocalStorage() : clearLocalStorage()
+  console.log(value, remember.value, window.localStorage.remember)
 }
 
 function selectContent() {
-  const range = document.createRange();
-  const node = document.getElementById("short-cut");
-  const selection = window.getSelection();
-  range.selectNode(node);
-  selection.removeAllRanges();
-  window.getSelection().addRange(range);
+  const range = document.createRange()
+  const node = document.getElementById('short-cut')
+  const selection = window.getSelection()
+  range.selectNode(node)
+  selection.removeAllRanges()
+  window.getSelection().addRange(range)
 }
 
 async function genShortcut(type) {
-  if (!(await post(type, false))) return;
-  showModal.value = true;
-  let url = `https://${window.location.host}/shortcut?`;
-  const callbackHost = window.location.host;
-  url += `callbackHost=${encodeURIComponent(callbackHost)}`;
-  url += `&username=${encodeURIComponent(formValue.value.username)}`;
-  url += `&password=${encodeURIComponent(formValue.value.password)}`;
-  url += `&type=${encodeURIComponent(type)}`;
-  console.log(url);
-  shortCut.value = url;
+  if (!(await post(type, false))) return
+  showModal.value = true
+  let url = `https://${window.location.host}/shortcut?`
+  const callbackHost = window.location.host
+  url += `callbackHost=${encodeURIComponent(callbackHost)}`
+  url += `&username=${encodeURIComponent(formValue.value.username)}`
+  url += `&password=${encodeURIComponent(formValue.value.password)}`
+  url += `&type=${encodeURIComponent(type)}`
+  console.log(url)
+  shortCut.value = url
 }
 
 async function post(type, jump = true) {
-  loading.value = true;
+  loading.value = true
   try {
     const result = await postForm(
       formValue.value.username,
       formValue.value.password,
       type
-    );
-    console.log(result.data);
-    saveToLocalStorage();
+    )
+    console.log(result.data)
+    saveToLocalStorage()
     if (jump) {
-      window.location.href = result.data;
+      window.location.href = result.data
     }
 
-    loading.value = false;
-    return true;
+    loading.value = false
+    return true
   } catch (err) {
-    console.log(err);
-    message.error(err.response.data ? err.response.data : err.message);
-    clearLocalStorage();
+    console.log(err)
+    message.error(err.response.data ? err.response.data : err.message)
+    clearLocalStorage()
   }
 
-  loading.value = false;
-  return false;
+  loading.value = false
+  return false
 }
 
 function submit(type) {
-  console.log(type);
+  console.log(type)
   formRef.value[0].validate((errors) => {
-    console.log(props.proxyStatus);
+    console.log(props.proxyStatus)
     if (!errors) {
       if (!props.proxyStatus) {
         dialog.warning({
-          title: "Warning",
-          content: "代理配置存在问题，可能会导致数据更新不成功，是否继续？",
-          negativeText: "取消",
-          positiveText: "继续",
+          title: 'Warning',
+          content: '代理配置存在问题，可能会导致数据更新不成功，是否继续？',
+          negativeText: '取消',
+          positiveText: '继续',
           onPositiveClick: () => {
-            post(type);
+            post(type)
           },
           autoFocus: false,
-        });
-      } else post(type);
+        })
+      } else post(type)
     } else {
-      console.log(errors);
+      console.log(errors)
     }
-  });
+  })
 }
 </script>
 

@@ -1,9 +1,7 @@
-import httpRequest from "../request/index"
+import httpRequest from '../request/index'
 
 async function getCount() {
-    return await httpRequest.get("/count")
+  return await httpRequest.get('/count')
 }
 
-export {
-    getCount
-}
+export { getCount }

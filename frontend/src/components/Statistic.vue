@@ -12,12 +12,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { RocketOutline } from "@vicons/ionicons5"
-import { getCount } from "../api/count.js"
+import { ref, onMounted } from 'vue'
+import { RocketOutline } from '@vicons/ionicons5'
+import { getCount } from '../api/count.js'
 
 const last = ref(0)
-const to = ref(0);
+const to = ref(0)
 
 onMounted(async () => {
   const update = async () => {
@@ -27,6 +27,5 @@ onMounted(async () => {
   }
   await update()
   setInterval(update, 1000 * 5)
-});
-
+})
 </script>

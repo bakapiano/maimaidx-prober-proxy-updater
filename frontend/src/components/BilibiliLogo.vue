@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { inject, onMounted, ref, watchEffect } from "vue";
+import { ref } from 'vue'
 
-const icon = ref(null);
+const icon = ref(null)
 </script>

@@ -18,7 +18,11 @@
           </div>
           <div class="log">
             <TransitionGroup name="list">
-              <n-text tag="div" v-if="data?.log" v-for="line in data.log.split('\n')" :key="line">
+              <n-text
+                v-for="line in data.log.split('\n')"
+                :key="line"
+                tag="div"
+              >
                 {{ line }}
               </n-text>
             </TransitionGroup>
@@ -29,52 +33,52 @@
             </div>
           </div>
         </n-space>
+        <n-divider />
       </template>
-      <n-divider />
       <n-progress
-          v-if="!error"
-          type="line" 
-          :status="
-            { running: 'info', success: 'success', failed: 'error' }[
-              data?.status || 'running'
-            ]
-          "
-          :percentage="data?.progress || 0"
-          :show-indicator="false"
-          :processing="data?.status === 'running'"
-          :indicator-placement="'inside'"
+        v-if="!error"
+        type="line"
+        :status="
+          { running: 'info', success: 'success', failed: 'error' }[
+            data?.status || 'running'
+          ]
+        "
+        :percentage="data?.progress || 0"
+        :show-indicator="false"
+        :processing="data?.status === 'running'"
+        :indicator-placement="'inside'"
       />
     </n-card>
   </n-spin>
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
-import { getTrace } from "../api/trace.js";
+import { onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { getTrace } from '../api/trace.js'
 import { useMessage } from 'naive-ui'
 
 const MAX_FETCH_COUNT = 5
 
-const route = useRoute();
+const route = useRoute()
 const message = useMessage()
 
-const data = ref(undefined);
-const loadingFirstTrace = ref(true);
-const fetchCount = ref(0);
+const data = ref(undefined)
+const loadingFirstTrace = ref(true)
+const fetchCount = ref(0)
 const error = ref(false)
 const inProgress = ref(true)
 
-const { uuid } = route.params;
-let intervalId = null;
+const { uuid } = route.params
+let intervalId = null
 
-watch(inProgress, (value, oldValue) => {
+watch(inProgress, async (value, oldValue) => {
   if (oldValue && !value) {
     clearInterval(intervalId)
     if (data?.value?.status) {
-      (data.value.status == "success" ? 
-        message.success("数据更新成功") : 
-        message.error("更新数据时出现错误"))
+      data.value.status == 'success'
+        ? message.success('数据更新成功')
+        : message.error('更新数据时出现错误')
     }
   }
 })
@@ -82,10 +86,14 @@ watch(inProgress, (value, oldValue) => {
 onMounted(
   () =>
     (intervalId = setInterval(async () => {
-      data.value = (await getTrace(uuid)).data;
-      console.log(data.value);
+      try {
+        data.value = (await getTrace(uuid)).data
+      } catch (err) {
+        data.value = undefined
+      }
+      console.log(data.value)
 
-      // Failed to load trace ingo
+      // Failed to load trace info
       if (!data.value?.status) {
         fetchCount.value += 1
         if (fetchCount.value >= MAX_FETCH_COUNT) {
@@ -94,16 +102,15 @@ onMounted(
           loadingFirstTrace.value = false
           error.value = true
         }
-      }
-      else if (loadingFirstTrace.value) {
+      } else if (loadingFirstTrace.value) {
         loadingFirstTrace.value = false
       }
 
-      if (data.value?.status == "failed" || data.value?.status == "success") {
+      if (data.value?.status == 'failed' || data.value?.status == 'success') {
         inProgress.value = false
       }
     }, 1000))
-);
+)
 </script>
 
 <style scoped>
@@ -111,6 +118,7 @@ onMounted(
 .list-leave-active {
   transition: all 0.5s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
   opacity: 0;

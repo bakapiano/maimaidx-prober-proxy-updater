@@ -1,0 +1,22 @@
+{
+  "editor.tabSize": 2, // Tab 的大小 2个空格
+  "editor.formatOnSave": true, // 保存是格式化
+  "prettier.singleQuote": true, // 单引号
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.format.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "html",
+    "vue",
+    "typescript",
+    "typescriptreact"
+  ],
+  "files.autoGuessEncoding": true // 自动识别文件编码格式
+}

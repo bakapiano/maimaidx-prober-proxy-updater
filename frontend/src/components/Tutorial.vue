@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-top: 32px; margin-bottom: 128px">
+  <div style="margin-bottom: 48px">
     <n-h1>数据更新器使用指南</n-h1>
     <n-collapse>
       <n-collapse-item name="1">
@@ -49,7 +49,7 @@
             <n-button-group vertical>
               <n-button
                 v-for="item in platformList"
-                v-bind:key="item.title"
+                :key="item.title"
                 @click="showTutroial(item.title)"
               >
                 <template #icon>
@@ -97,8 +97,8 @@
 </template>
 
 <script setup>
-import { useMessage } from "naive-ui";
-import { ref, defineComponent } from "vue";
+import { useMessage } from 'naive-ui'
+import { ref } from 'vue'
 import {
   LogoWindows,
   LogoAndroid,
@@ -106,62 +106,62 @@ import {
   Rocket,
   Apps,
   Airplane,
-} from "@vicons/ionicons5";
-import BilibiliLogo from "./BilibiliLogo.vue";
+} from '@vicons/ionicons5'
+import BilibiliLogo from './BilibiliLogo.vue'
 
-const message = useMessage();
+const message = useMessage()
 
-const showModal = ref(false);
-const current = ref("");
+const showModal = ref(false)
+const current = ref('')
 const platformList = [
   {
-    title: "Windows 10",
+    title: 'Windows 10',
     compnent: LogoWindows,
   },
   {
-    title: "Android",
+    title: 'Android',
     compnent: LogoAndroid,
   },
   {
-    title: "IOS",
+    title: 'IOS',
     compnent: LogoApple,
   },
   {
-    title: "IOS 小火箭",
+    title: 'IOS 小火箭',
     compnent: Rocket,
   },
   {
-    title: "其他平台",
+    title: '其他平台',
     compnent: Apps,
   },
   {
-    title: "其他代理软件",
+    title: '其他代理软件',
     compnent: Airplane,
   },
-];
+]
 
 async function copyToClipBoard() {
-  navigator.clipboard.writeText(window.location.href);
-  message.success("链接已复制到剪切板");
+  navigator.clipboard.writeText(window.location.href)
+  message.success('链接已复制到剪切板')
 }
 
 async function copyTextToClipBoard(text) {
-  navigator.clipboard.writeText(text);
-  message.success("已复制到剪切板");
+  navigator.clipboard.writeText(text)
+  message.success('已复制到剪切板')
 }
 
 function showTutroial(title) {
-  current.value = title;
-  showModal.value = true;
-  console.log(title, current, showModal);
+  current.value = title
+  showModal.value = true
+  console.log(title, current, showModal)
 }
 
 function openWindow(url) {
-  window.open(url);
+  window.open(url)
 }
 </script>
 
-<style >
+<style>
 .n-image img {
   width: 100%;
 }

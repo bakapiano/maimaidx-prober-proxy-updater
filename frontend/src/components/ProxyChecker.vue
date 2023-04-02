@@ -27,32 +27,36 @@
 </template>
 
 <script setup>
-import { checkProxySettingStatus } from "../api/proxy";
-import { ConstructSharp } from "@vicons/ionicons5";
-import { ref, onMounted, watch } from "vue";
+import { checkProxySettingStatus } from '../api/proxy'
+import { ConstructSharp } from '@vicons/ionicons5'
+import { ref, onMounted, watch } from 'vue'
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue'])
 
-const loading = ref(null);
-const success = ref(false);
-const lock = ref(false);
-const checkerInterval = setInterval(() => (loading.value = true), 5000);
+const loading = ref(null)
+const success = ref(false)
+const lock = ref(false)
+const checkerInterval = setInterval(() => (loading.value = true), 5000)
 
-watch(loading, async (newValue, oldValue) => {
+watch(loading, async (newValue) => {
   if (newValue === true && lock.value == false) {
-    lock.value = true;
-    const status = await checkProxySettingStatus();
-    if (status) {
-      success.value = true;
-      clearInterval(checkerInterval);
-    }
-    setTimeout(() => (lock.value = loading.value = false), 500);
+    lock.value = true
+    const status = await checkProxySettingStatus()
+    console.log(status)
+    // if (status) {
+    success.value = status
+    // clearInterval(checkerInterval);
+    // }
+    setTimeout(() => (lock.value = loading.value = false), 500)
   }
-});
+  return () => {
+    clearInterval(checkerInterval)
+  }
+})
 
-onMounted(() => (loading.value = true));
+onMounted(() => (loading.value = true))
 
-watch(success, (newValue, oldValue) => {
-  emit("update:modelValue", newValue);
-});
+watch(success, (newValue) => {
+  emit('update:modelValue', newValue)
+})
 </script>
