@@ -8,8 +8,10 @@ async function fetchWithCookieWithRetry(cj, url, options) {
     try {
       // timeout
       const contoller = new AbortController();
-      setTimeout(() => {contoller.abort()}, 30 * 1000)
-      return await fetchWithCookie(cj, url, {signal: contoller.signal, ...options});
+      const timeout = setTimeout(() => {contoller.abort()}, 30 * 1000)
+      const result = await fetchWithCookie(cj, url, {signal: contoller.signal, ...options});
+      clearTimeout(timeout)
+      return result
     } catch (e) {
       console.log(`delay due to fetch failed with attempt ${url} #${i + 1}`);
 
