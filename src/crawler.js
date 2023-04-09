@@ -6,7 +6,10 @@ import fetch from "node-fetch";
 async function fetchWithCookieWithRetry(cj, url, options) {
   for (let i = 0; i < 5; i++) {
     try {
-      return await fetchWithCookie(cj, url, options);
+      // timeout
+      const contoller = new AbortController();
+      setTimeout(() => {contoller.abort()}, 30 * 1000)
+      return await fetchWithCookie(cj, url, {signal: contoller.signal, ...options});
     } catch (e) {
       console.log(`delay due to fetch failed with attempt ${url} #${i + 1}`);
 
