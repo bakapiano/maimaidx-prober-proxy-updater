@@ -1,9 +1,4 @@
-import { delValue, getValue } from "./db.js";
-import { updateChunithmScore, updateMaimaiScore } from "./crawler.js";
-
-import { HTTPParser } from "http-parser-js";
 import config from "../config.js";
-import { v4 as genUUID } from "uuid"
 import http from "http";
 import net from "net";
 import url from "url";
@@ -32,40 +27,6 @@ function checkHostInWhiteList(target) {
   return WHITE_LIST.find((value) => value === target) !== undefined;
 }
 
-async function onAuthHook(href) {
-  console.log("Successfully hook auth request!");
-
-  const protocol = config.dev ? "http" : "https"
-  const target = href.replace("http", "https");
-  const key = url.parse(target, true).query.r;
-  const value = await getValue(key);
-  
-  if (value === undefined) {
-    return `${protocol}://${config.host}/#/error`;
-  }
-
-  const { username, password, callbackHost } = value;
-  const baseHost = callbackHost || config.host
-  const errorPageUrl = `${protocol}://${baseHost}/#/error`
-  const traceUUID = genUUID()
-  const tracePageUrl = `${protocol}://${baseHost}/#/trace/${traceUUID}/`
-  delValue(key);
-
-  console.log(username, password, baseHost)
-  if (!username || !password) {
-    return errorPageUrl;
-  }
-  
-  if (target.includes('maimai-dx')) {
-    updateMaimaiScore(username, password, target, traceUUID);
-  } else if (target.includes('chunithm')) {
-    updateChunithmScore(username, password, target, traceUUID);
-  } else { // ongeki? hahaha
-    return errorPageUrl
-  }
-  return tracePageUrl;
-}
-
 // handle http proxy requests
 async function httpOptions(clientReq, clientRes) {
   clientReq.on("error", (e) => {
@@ -87,27 +48,18 @@ async function httpOptions(clientReq, clientRes) {
     return;
   }
 
-  if (
-    reqUrl.href.startsWith(
-      "http://tgk-wcaime.wahlap.com/wc_auth/oauth/callback"
-    )
-  ) {
-    try {
-      const redirectResult = await onAuthHook(reqUrl.href);
-      clientRes.writeHead(302, { location: redirectResult });
-      clientRes.statusCode = 302;
-      clientRes.end();
-    } catch (err) {
-      console.log(err);
-    }
+  console.log(reqUrl.hostname)
+  console.log(reqUrl.port)
+  console.log(reqUrl.path)
+  
+  const path = `http://${reqUrl.hostname}:${reqUrl.port || ""}${reqUrl.path}`
 
-    return;
-  }
-
+  console.log(path)
+  
   var options = {
-    hostname: reqUrl.hostname,
-    port: reqUrl.port,
-    path: reqUrl.path,
+    hostname: config.interProxy.targetHost,
+    port: config.interProxy.targetPort,
+    path: path,
     method: clientReq.method,
     headers: clientReq.headers,
   };
@@ -149,28 +101,9 @@ proxyServer.on("connect", (clientReq, clientSocket, head) => {
     return;
   }
 
-  if (reqUrl.host === 'tgk-wcaime.wahlap.com:80') {
-    clientSocket.write("HTTP/" +
-      clientReq.httpVersion +
-      " 200 Connection Established\r\n" +
-      "Proxy-agent: Node.js-Proxy\r\n" +
-      "\r\n",
-      "UTF-8", () => {
-        const parser = new HTTPParser('REQUEST');
-        parser[HTTPParser.kOnHeadersComplete] = async (info) => {
-          const redirectResult = await onAuthHook(`http://tgk-wcaime.wahlap.com${info.url}`);
-          clientSocket.end(`HTTP/1.1 302 Found\r\nLocation: ${redirectResult}\r\n\r\n`);
-        };
-
-        clientSocket.on('data', chunk => {
-          parser.execute(chunk);
-        });
-      });
-
-    return;
-  }
-
   var options = {
+    // host: "maimai.bakapiano.com",
+    // port: 2560,
     port: reqUrl.port,
     host: reqUrl.hostname,
   };
@@ -205,4 +138,4 @@ proxyServer.on("clientError", (err, clientSocket) => {
   clientSocket.end("HTTP/1.1 400 Bad Request\r\n\r\n");
 });
 
-export { proxyServer as proxy };
+export { proxyServer as interProxy };

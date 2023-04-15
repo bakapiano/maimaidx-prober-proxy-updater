@@ -1,28 +1,30 @@
 import { clearExpireData, saveCount } from "./src/db.js"
 
+import config from "./config.js"
+import { interProxy } from "./src/inter-proxy.js"
 import { proxy } from "./src/proxy.js"
 import schedule from "node-schedule"
 import { server } from "./src/server.js"
 
-// const warp = (logFunc) => {
-//   return (msg) => {
-//     logFunc(`[${(new Date()).toLocaleTimeString()}] ${msg}`)
-//   }
-// }
+if (config.httpServer.enable) {
+  server.listen(config.httpServer.port)
+  server.on("error", (error) => console.log(`Server error ${error}`))
+  console.log(`HTTP server listen on ${config.httpServer.port}`)
+}
 
-// console.log = warp(console.log)
-// console.warn = warp(console.warn)
-// console.error = warp(console.error)
+if (config.httpProxy.enable) {
+  proxy.listen(config.httpProxy.port)
+  proxy.on("error", (error) => console.log(`Proxy error ${error}`))
+  console.log(`Proxy server listen on ${config.httpProxy.port}`);
+}
 
-server.listen(8081)
-server.on("error", (error) => console.log(`Server error ${error}`))
-console.log("HTTP server listen on 8081")
+if (config.interProxy.enable) {
+  interProxy.listen(config.interProxy.port)
+  interProxy.on("error", (error) => console.log(`Inter proxy error ${error}`))
+  console.log(`Inter proxy server listen on ${config.interProxy.port}`);
+}
 
-proxy.listen(2560)
-proxy.on("error", (error) => console.log(`Proxy error ${error}`))
-console.log("Proxy server listen on 2560");
-
-
+// Create a schedule to clear in-memory DB and save count
 const rule = new schedule.RecurrenceRule()
 rule.minute = []
 for (var min = 0; min < 60; min += 5) {

@@ -68,3 +68,4 @@ package-lock.json
 
 # lowdb
 db.json
+.db.json.tmp
