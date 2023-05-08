@@ -164,7 +164,7 @@ function selectContent() {
 async function genShortcut(type) {
   if (!(await post(type, false))) return
   showModal.value = true
-  let url = `https://${window.location.host}/shortcut?`
+  let url = `${window.location.protocol}//${window.location.host}/shortcut?`
   const callbackHost = window.location.host
   url += `callbackHost=${encodeURIComponent(callbackHost)}`
   url += `&username=${encodeURIComponent(formValue.value.username)}`

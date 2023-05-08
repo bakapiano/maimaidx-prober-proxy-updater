@@ -2,6 +2,7 @@
   <n-space vertical>
     <proxy-checker v-model="proxyStatus"></proxy-checker>
     <prober-from :proxy-status="proxyStatus"></prober-from>
+    <power-up />
     <frequently-asked />
     <statistic />
     <tutorial />
@@ -9,6 +10,7 @@
 </template>
 
 <script setup>
+import PowerUp from '../components/PowerUp.vue'
 import ProxyChecker from '../components/ProxyChecker.vue'
 import FrequentlyAsked from '../components/FrequentlyAsked.vue'
 import Tutorial from '../components/Tutorial.vue'
