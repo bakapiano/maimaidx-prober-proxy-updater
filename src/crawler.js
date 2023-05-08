@@ -54,7 +54,7 @@ async function getAuthUrl(type) {
   return href;
 }
 
-const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
+const updateMaimaiScore = async (username, password, authUrl, traceUUID, logCreatedCallback) => {
   try {
     const trace = useTrace(traceUUID);
     const stage = useStage(trace);
@@ -67,6 +67,8 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
       status: "running",
       progress: 0,
     });
+
+    logCreatedCallback();
 
     await stage("登录公众号", 10, async () => {
       await fetch(authUrl, {
@@ -145,7 +147,7 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID) => {
   }
 };
 
-const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
+const updateChunithmScore = async (username, password, authUrl, traceUUID, logCreatedCallback) => {
   try {
     const trace = useTrace(traceUUID);
     const stage = useStage(trace);
@@ -157,6 +159,8 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID) => {
       status: "running",
       progress: 0,
     });
+
+    logCreatedCallback();
     
     await stage("登录公众号", 6.25, async ()=>{
       const authResult = await fetch(authUrl, {

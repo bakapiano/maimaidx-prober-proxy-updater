@@ -17,8 +17,8 @@ memoDB.read().then(() => {
 })
 
 async function setValue(key, value) {
-  memoDB.data[key] = value;
   memoDB.data.time[key] = (new Date()).getTime()
+  memoDB.data[key] = value;
 }
 
 async function getValue(key) {
@@ -30,8 +30,8 @@ async function appendValue(key, value, defaultValue) {
   if (current === undefined) {
     memoDB.data[key] = defaultValue;
   }
-  memoDB.data[key] = current + value;
   memoDB.data.time[key] = (new Date()).getTime()
+  memoDB.data[key] = current + value;
 }
 
 async function delValue(key) {

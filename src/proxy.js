@@ -56,10 +56,19 @@ async function onAuthHook(href) {
     return errorPageUrl;
   }
   
+  const [updateMaimaiScoreWaitLogCreate, updateChunithmScoreWaitLogCreate] = [
+    updateMaimaiScore, updateChunithmScore,].map((func) => {
+      return (username, password, target, traceUUID) => {
+        return new Promise((resolve, reject) => {
+          func(username, password, target, traceUUID, resolve).catch(reject);
+        });
+      };
+  });
+
   if (target.includes('maimai-dx')) {
-    updateMaimaiScore(username, password, target, traceUUID);
+    await updateMaimaiScoreWaitLogCreate(username, password, target, traceUUID);
   } else if (target.includes('chunithm')) {
-    updateChunithmScore(username, password, target, traceUUID);
+    await updateChunithmScoreWaitLogCreate(username, password, target, traceUUID);
   } else { // ongeki? hahaha
     return errorPageUrl
   }
