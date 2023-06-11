@@ -1,8 +1,9 @@
 import { delValue, getValue } from "./db.js";
-import { updateChunithmScore, updateMaimaiScore } from "./crawler.js";
+import { getCookieByAuthUrl, updateChunithmScore, updateMaimaiScore } from "./crawler.js";
 
 import { HTTPParser } from "http-parser-js";
 import config from "../config.js";
+import fs from "fs";
 import { v4 as genUUID } from "uuid"
 import http from "http";
 import net from "net";
@@ -40,7 +41,14 @@ async function onAuthHook(href) {
   const key = url.parse(target, true).query.r;
   const value = await getValue(key);
   
-  if (value === undefined) {
+  if (value === undefined || key === "count") {
+    return `${protocol}://${config.host}/#/error`;
+  }
+
+  // Save cookie to local path
+  if (value.local === true && config.wechatLogin.enable) {
+    const cj = await getCookieByAuthUrl(target);
+    await cj.save(config.wechatLogin.cookiePath)
     return `${protocol}://${config.host}/#/error`;
   }
 
@@ -49,6 +57,7 @@ async function onAuthHook(href) {
   const errorPageUrl = `${protocol}://${baseHost}/#/error`
   const traceUUID = genUUID()
   const tracePageUrl = `${protocol}://${baseHost}/#/trace/${traceUUID}/`
+
   delValue(key);
 
   console.log(username, password, baseHost)
@@ -56,6 +65,7 @@ async function onAuthHook(href) {
     return errorPageUrl;
   }
   
+  // wait for first log message created, then return redirect url
   const [updateMaimaiScoreWaitLogCreate, updateChunithmScoreWaitLogCreate] = [
     updateMaimaiScore, updateChunithmScore,].map((func) => {
       return (username, password, target, traceUUID) => {

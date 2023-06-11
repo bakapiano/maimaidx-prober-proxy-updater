@@ -9,12 +9,12 @@ const config = {
     enable: true,
     port: 2560,
   },
-  interProxy: {
-    enable: false,
-    port: 8848,
-    targetHost: "49.235.118.199",
-    targetPort: 2560,
-  },
+  wechatLogin: {
+    enable: true,
+    cmd2Execute: "python C:\\Users\\bakapiano\\wechat_login.py",
+    cookiePath: "C:\\Users\\bakapiano\\cookie.json",
+    token: "",
+  }
 };
 
 const serverHost = process.argv.slice(2)[0];

@@ -1,6 +1,5 @@
 import {
   getAuthUrl,
-  updateMaimaiScore,
   verifyProberAccount,
 } from "./crawler.js";
 import { getCount, increaseCount, setValue } from "./db.js";
@@ -8,7 +7,9 @@ import { getCount, increaseCount, setValue } from "./db.js";
 import bodyParser from "body-parser";
 import config from "../config.js";
 import cors from "cors";
+import { exec } from "child_process";
 import express from "express";
+import fs from "fs";
 import { getTrace } from "./trace.js";
 import url from "url";
 
@@ -54,11 +55,6 @@ async function serve(serverReq, serverRes, data, redirect) {
   const { redirect_uri } = resultUrl.query;
   const key = url.parse(redirect_uri, true).query.r;
 
-  if (key === "count") {
-    serverRes.status(400).send("What do you want to do?")
-    return
-  }
-
   await setValue(key, { username, password, callbackHost });
   // setTimeout(() => delValue(key), 1000 * 60 * 5);
 
@@ -84,10 +80,58 @@ app.get("/trace", async (serverReq, serverRes) => {
     : serverRes.send(await getTrace(uuid));
 });
 
-app.get("/count", async (serverReq, serverRes) => {
+app.get("/count", async (_serverReq, serverRes) => {
   const count = getCount();
   serverRes.status(200).send({count});
 })
+
+if (config.wechatLogin.enable) {
+  const validateToken = (serve) => {
+    return async (serverReq, serverRes) => {
+      const { token } = serverReq.query;
+      if (token !== config.wechatLogin.token) {
+        serverRes.status(400).send("Invalid token");
+      }
+      await serve(serverReq, serverRes);
+    }
+  }
+
+  // Use for local login
+  app.get("/token", validateToken(async (serverReq, serverRes) => {
+    let { type } = serverReq.query;
+  
+    const href = await getAuthUrl(type);
+  
+    const resultUrl = url.parse(href, true);
+    const { redirect_uri } = resultUrl.query;
+    const key = url.parse(redirect_uri, true).query.r;
+    
+    await setValue(key, { local: true });
+
+    serverRes.redirect(href);
+  }))
+
+  // Trigger a wechat login
+  app.get("/trigger", validateToken(async () => {
+    try {
+      fs.unlink(config.wechatLogin.cookiePath, () => {})
+    }
+    catch (_err) {}
+    exec(config.wechatLogin.cmd2Execute)
+    serverRes.status(200).send("Triggered")
+  }))
+
+  // Get cookie file content
+  app.get("/cookie", validateToken(async (_serverReq, serverRes) => {
+    try {
+      const content = fs.readFileSync(config.wechatLogin.cookiePath, "utf8")
+      serverRes.status(200).send(content)
+    }
+    catch (err) {
+      serverRes.status(400).send(err.message)
+    }
+  }))
+}
 
 app.use(express.static("static"));
 

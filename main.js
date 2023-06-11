@@ -1,7 +1,6 @@
 import { clearExpireData, saveCount } from "./src/db.js"
 
 import config from "./config.js"
-import { interProxy } from "./src/inter-proxy.js"
 import { proxy } from "./src/proxy.js"
 import schedule from "node-schedule"
 import { server } from "./src/server.js"
@@ -16,12 +15,6 @@ if (config.httpProxy.enable) {
   proxy.listen(config.httpProxy.port)
   proxy.on("error", (error) => console.log(`Proxy error ${error}`))
   console.log(`Proxy server listen on ${config.httpProxy.port}`);
-}
-
-if (config.interProxy.enable) {
-  interProxy.listen(config.interProxy.port)
-  interProxy.on("error", (error) => console.log(`Inter proxy error ${error}`))
-  console.log(`Inter proxy server listen on ${config.interProxy.port}`);
 }
 
 // Create a schedule to clear in-memory DB and save count

@@ -54,12 +54,41 @@ async function getAuthUrl(type) {
   return href;
 }
 
+const getCookieByAuthUrl = async (authUrl) => {
+  const cj = new CookieJar();
+  const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
+  await fetch(authUrl, {
+    headers: {
+      Host: "tgk-wcaime.wahlap.com",
+      Connection: "keep-alive",
+      "Upgrade-Insecure-Requests": "1",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+      "Sec-Fetch-Site": "none",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-User": "?1",
+      "Sec-Fetch-Dest": "document",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+    },
+  });
+
+  console.log(cj.cookies)
+
+  await fetch("https://maimai.wahlap.com/maimai-mobile/home/");
+
+  return cj;
+}
+
 const updateMaimaiScore = async (username, password, authUrl, traceUUID, logCreatedCallback) => {
   try {
     const trace = useTrace(traceUUID);
     const stage = useStage(trace);
     
     const cj = new CookieJar();
+
     const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
 
     await trace({
@@ -278,4 +307,5 @@ export {
   updateMaimaiScore,
   updateChunithmScore,
   getAuthUrl,
+  getCookieByAuthUrl,
 };
