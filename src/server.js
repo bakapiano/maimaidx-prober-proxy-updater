@@ -91,6 +91,7 @@ if (config.wechatLogin.enable) {
       const { token } = serverReq.query;
       if (token !== config.wechatLogin.token) {
         serverRes.status(400).send("Invalid token");
+        return
       }
       await serve(serverReq, serverRes);
     }
