@@ -48,6 +48,8 @@ async function onAuthHook(href) {
   // Save cookie to local path
   if (value.local === true && config.wechatLogin.enable) {
     const cj = await getCookieByAuthUrl(target);
+    cj.cookies.get("maimai.wahlap.com").get("userId").expiry = (new Date()).setFullYear(2099)
+    cj.cookies.get("maimai.wahlap.com").get("_t").expiry = (new Date()).setFullYear(2099)
     await cj.save(config.wechatLogin.cookiePath)
     return `${protocol}://${config.host}/#/error`;
   }

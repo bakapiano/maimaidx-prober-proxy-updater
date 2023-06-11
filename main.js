@@ -1,6 +1,8 @@
 import { clearExpireData, saveCount } from "./src/db.js"
 
+import { CookieJar } from "node-fetch-cookies"
 import config from "./config.js"
+import fs from "fs"
 import { proxy } from "./src/proxy.js"
 import schedule from "node-schedule"
 import { server } from "./src/server.js"
@@ -16,6 +18,13 @@ if (config.httpProxy.enable) {
   proxy.on("error", (error) => console.log(`Proxy error ${error}`))
   console.log(`Proxy server listen on ${config.httpProxy.port}`);
 }
+
+/*
+const results = fs.readFileSync(config.wechatLogin.cookiePath, "utf8")
+const cj = new CookieJar(config.wechatLogin.cookiePath)
+await cj.load()
+console.log(cj.cookies)
+*/
 
 // Create a schedule to clear in-memory DB and save count
 const rule = new schedule.RecurrenceRule()

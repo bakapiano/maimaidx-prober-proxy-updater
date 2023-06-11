@@ -75,8 +75,6 @@ const getCookieByAuthUrl = async (authUrl) => {
     },
   });
 
-  console.log(cj.cookies)
-
   await fetch("https://maimai.wahlap.com/maimai-mobile/home/");
 
   return cj;
