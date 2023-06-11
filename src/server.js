@@ -113,7 +113,7 @@ if (config.wechatLogin.enable) {
   }))
 
   // Trigger a wechat login
-  app.get("/trigger", validateToken(async () => {
+  app.get("/trigger", validateToken(async (_serverReq, serverRes) => {
     try {
       fs.unlink(config.wechatLogin.cookiePath, () => {})
     }
