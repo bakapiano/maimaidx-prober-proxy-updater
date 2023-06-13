@@ -1,4 +1,6 @@
+import { cancelFriendRequest, getFriendList, getSentRequests, sendFriendRequest, testCookieExpired } from "./src/bot.js"
 import { clearExpireData, saveCount } from "./src/db.js"
+import {loadCookie, refreshCookie} from "./src/wechat.js"
 
 import { CookieJar } from "node-fetch-cookies"
 import config from "./config.js"
@@ -19,12 +21,6 @@ if (config.httpProxy.enable) {
   console.log(`Proxy server listen on ${config.httpProxy.port}`);
 }
 
-/*
-const results = fs.readFileSync(config.wechatLogin.cookiePath, "utf8")
-const cj = new CookieJar(config.wechatLogin.cookiePath)
-await cj.load()
-console.log(cj.cookies)
-*/
 
 // Create a schedule to clear in-memory DB and save count
 const rule = new schedule.RecurrenceRule()

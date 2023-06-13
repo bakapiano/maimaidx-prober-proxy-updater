@@ -1,27 +1,9 @@
-import { CookieJar, fetch as fetchWithCookie } from "node-fetch-cookies";
 import { useStage, useTrace } from "./trace.js";
 
+import { CookieJar } from "node-fetch-cookies";
 import config from "../config.js";
 import fetch from "node-fetch";
-
-async function fetchWithCookieWithRetry(cj, url, options) {
-  for (let i = 0; i < config.fetchRetryCount; i++) {
-    try {
-      // timeout
-      const contoller = new AbortController();
-      const timeout = setTimeout(() => {contoller.abort()}, config.fetchTimeOut)
-      const result = await fetchWithCookie(cj, url, {signal: contoller.signal, ...options});
-      clearTimeout(timeout)
-      return result
-    } catch (e) {
-      if (i === config.fetchRetryCount - 1) throw e;
-      console.log(`delay due to fetch failed with attempt ${url} #${i + 1}`);
-      await new Promise(r => {
-        setTimeout(r, 1000);
-      });
-    }
-  }
-}
+import { fetchWithCookieWithRetry } from "./util.js";
 
 async function verifyProberAccount(username, password) {
   const res = await fetch(
@@ -145,7 +127,7 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID, logCrea
 
           await stage(`上传 ${descriptions[diff]} 分数至 diving-fish 查分器数据库`, progress, async () => {
               const uploadResult = await fetch(
-                "https://www.diving-fish.com/api/pageparser/page",
+                `${config.pageParserHost}/page`,
                 {
                   method: "post",
                   headers: { "content-type": "text/plain" },
