@@ -5,7 +5,7 @@ import config from "../config.js";
 import fetch from "node-fetch";
 
 async function fetchWithCookieWithRetry(cj, url, options) {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < config.fetchRetryCount; i++) {
     try {
       // timeout
       const contoller = new AbortController();
@@ -14,8 +14,8 @@ async function fetchWithCookieWithRetry(cj, url, options) {
       clearTimeout(timeout)
       return result
     } catch (e) {
+      if (i === config.fetchRetryCount - 1) throw e;
       console.log(`delay due to fetch failed with attempt ${url} #${i + 1}`);
-
       await new Promise(r => {
         setTimeout(r, 1000);
       });

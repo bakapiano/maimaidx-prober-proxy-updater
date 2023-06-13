@@ -1,5 +1,7 @@
 import { appendValue, getValue, setValue } from "./db.js";
 
+import config from "../config.js";
+
 const PREFIX = "RESULT";
 
 const LOG_KEY = "LOG";
@@ -8,8 +10,11 @@ const STATUS_KEY = "STATUS";
 
 async function appendLog(uuid, text) {
   const key = `${PREFIX}-${uuid}-${LOG_KEY}`;
-  const time = new Date().toLocaleString("en", {timeZone: "Asia/Shanghai",}).split(",")[1].trim()
-  const log  = `[${time}] ${text}` + "\n"
+  const time = new Date()
+    .toLocaleString("en", { timeZone: "Asia/Shanghai" })
+    .split(",")[1]
+    .trim();
+  const log = `[${time}] ${text}` + "\n";
   await appendValue(key, log, "");
 }
 
@@ -37,7 +42,7 @@ function useTrace(uuid) {
     const { status, log, progress } = payload;
     status && (await setStatus(uuid, status));
     log && (await appendLog(uuid, log));
-    progress !== undefined && await setProgress(uuid, progress);
+    progress !== undefined && (await setProgress(uuid, progress));
     // Auto expire trace in db
     // (status === "success" || status === "failed") && await expireTrace(uuid);
   };
@@ -47,23 +52,29 @@ function useStage(trace) {
   let failed = false;
   return async (description, progress, func) => {
     await trace({ log: `开始${description}` });
-    try {
-      await func();
-      /*
-      if (Math.random() >= 0.9) {
-        throw new Error("test")
+    for (let i = 0; i < config.stageRetryCount; i++) {
+      try {
+        await func();
+        break;
+      } catch (error) {
+        if (failed) throw error;
+
+        if (i === config.stageRetryCount - 1) {
+          failed = true;
+          await trace({
+            log: `${description}时候出现错误: ${String(error)}`,
+            status: "failed",
+          });
+          throw error;
+        } else {
+          await trace({log: `${description}时出现错误: ${String(error)}; 进行第${i + 1}次重试`})
+          await new Promise((r) => {
+            setTimeout(r, 1000);
+          });
+        }
       }
-      */
-    } catch (error) {
-      if (!failed) {
-        failed = true;
-        await trace({
-          log: `${description}时候出现错误: ${String(error)}`,
-          status: "failed",
-        });
-      }
-      throw error;
     }
+
     await trace({ log: `${description}完成`, progress });
   };
 }
