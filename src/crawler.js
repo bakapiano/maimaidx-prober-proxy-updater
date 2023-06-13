@@ -1,6 +1,7 @@
 import { CookieJar, fetch as fetchWithCookie } from "node-fetch-cookies";
 import { useStage, useTrace } from "./trace.js";
 
+import config from "../config.js";
 import fetch from "node-fetch";
 
 async function fetchWithCookieWithRetry(cj, url, options) {
@@ -8,7 +9,7 @@ async function fetchWithCookieWithRetry(cj, url, options) {
     try {
       // timeout
       const contoller = new AbortController();
-      const timeout = setTimeout(() => {contoller.abort()}, 30 * 1000)
+      const timeout = setTimeout(() => {contoller.abort()}, config.fetchTimeOut)
       const result = await fetchWithCookie(cj, url, {signal: contoller.signal, ...options});
       clearTimeout(timeout)
       return result

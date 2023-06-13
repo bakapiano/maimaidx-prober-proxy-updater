@@ -1,6 +1,7 @@
 const config = {
   host: "maimai.bakapiano.com",
   dev: false,
+  fetchTimeOut: 60 * 5 * 1000,
   httpServer: {
     enable: true,
     port: 8081,
