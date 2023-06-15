@@ -3,6 +3,7 @@ import 'vfonts/Lato.css'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import App from './App.vue'
+import Bot from './pages/BotPage.vue'
 import Error from './pages/ErrorPage.vue'
 import Home from './pages/HomePage.vue'
 import Result from './pages/ResultPage.vue'
@@ -13,6 +14,7 @@ const routes = [
   { path: '/', component: Home, name: 'home' },
   { path: '/trace/:uuid/', component: Result, name: 'trace' },
   { path: '/score/', component: Score, name: 'score' },
+  { path: '/bot/', component: Bot, name: 'bot' },
   { path: '/error/', component: Error, name: 'error' },
 ]
 

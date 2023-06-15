@@ -1,8 +1,8 @@
+import { appendQueue, getCount, increaseCount, setValue } from "./db.js";
 import {
   getAuthUrl,
   verifyProberAccount,
 } from "./crawler.js";
-import { getCount, increaseCount, setValue } from "./db.js";
 
 import bodyParser from "body-parser";
 import config from "../config.js";
@@ -10,6 +10,7 @@ import cors from "cors";
 import { exec } from "child_process";
 import express from "express";
 import fs from "fs";
+import { v4 as genUUID } from "uuid"
 import { getTrace } from "./trace.js";
 import url from "url";
 
@@ -132,6 +133,27 @@ if (config.wechatLogin.enable) {
       serverRes.status(400).send(err.message)
     }
   }))
+}
+
+if (config.bot.enable) {
+  app.post("/bot", jsonParser, async (req, res) => {
+    const { username, password, friendCode } = req.body;
+
+    if (!username || !password || !friendCode) {
+      res.status(400);
+      return;
+    }
+
+    if (!(await verifyProberAccount(username, password))) {
+      res.status(400).send("查分器用户名或密码错误！");
+      return;
+    }
+
+    const traceUUID = genUUID();
+    appendQueue({ username, password, friendCode, traceUUID });
+    
+    res.status(200).send(traceUUID);
+  })
 }
 
 app.use(express.static("static"));

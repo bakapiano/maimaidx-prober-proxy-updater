@@ -1,23 +1,23 @@
 import { Low, Memory } from "lowdb";
 
-import { JSONFile } from 'lowdb/node'
+import { JSONFile } from "lowdb/node";
 
 var fileDB = new Low(new JSONFile("db.json"));
-var memoDB = new Low(new Memory())
+var memoDB = new Low(new Memory());
 
 fileDB.read().then(() => {
   if (!fileDB.data) {
-    fileDB.data = { count: 0 }
-    fileDB.write()
+    fileDB.data = { count: 0 };
+    fileDB.write();
   }
-})
+});
 
 memoDB.read().then(() => {
-  memoDB.data = { time: {} }
-})
+  memoDB.data = { time: {} };
+});
 
 async function setValue(key, value) {
-  memoDB.data.time[key] = (new Date()).getTime()
+  memoDB.data.time[key] = new Date().getTime();
   memoDB.data[key] = value;
 }
 
@@ -30,7 +30,7 @@ async function appendValue(key, value, defaultValue) {
   if (current === undefined) {
     memoDB.data[key] = defaultValue;
   }
-  memoDB.data.time[key] = (new Date()).getTime()
+  memoDB.data.time[key] = new Date().getTime();
   memoDB.data[key] = current + value;
 }
 
@@ -45,26 +45,50 @@ async function delValue(key) {
 
 async function clearExpireData() {
   Object.keys(memoDB.data.time).forEach(async (key) => {
-    const current = (new Date()).getTime();
-    const delta = current - (memoDB.data.time[key]);
+    const current = new Date().getTime();
+    const delta = current - memoDB.data.time[key];
     if (delta >= 1000 * 60 * 60 * 30) {
-      await delValue(key)
-    } 
+      await delValue(key);
+    }
   });
 }
 
 function increaseCount() {
-  if (fileDB.data.count === undefined) 
-    fileDB.data.count = 0;
+  if (fileDB.data.count === undefined) fileDB.data.count = 0;
   fileDB.data.count += 1;
 }
 
 function getCount() {
-  return fileDB.data.count;
+  return fileDB.data?.count || 0;
 }
 
 async function saveCount() {
   await fileDB.write();
 }
 
-export { setValue, getValue, delValue, increaseCount, getCount, clearExpireData, saveCount, appendValue };
+function appendQueue(data) {
+  if (memoDB.data.quque === undefined) {
+    memoDB.data.quque = [];
+  }
+  memoDB.data.quque.push(data);
+}
+
+function popQueue() {
+  if (memoDB.data.quque === undefined) {
+    memoDB.data.quque = [];
+  }
+  return memoDB.data.quque.shift();
+}
+
+export {
+  setValue,
+  getValue,
+  delValue,
+  increaseCount,
+  getCount,
+  clearExpireData,
+  saveCount,
+  appendValue,
+  appendQueue,
+  popQueue,
+};

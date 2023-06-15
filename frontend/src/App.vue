@@ -116,7 +116,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useBreakpoints } from 'vooks'
 import { RouterLink } from 'vue-router'
 
-const route = useRoute()
+// const route = useRoute()
 const router = useRouter()
 
 const breakpointRef = useBreakpoints()
@@ -170,6 +170,20 @@ const menuOptions = [
       ),
     key: 'score',
     to: '/score',
+  },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            path: '/bot/',
+          },
+        },
+        { default: () => 'bot' }
+      ),
+    key: 'bot',
+    to: '/bot',
   },
 ]
 </script>

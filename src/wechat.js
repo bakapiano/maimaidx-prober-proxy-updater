@@ -4,8 +4,10 @@ import fetch from "node-fetch";
 import fs from "fs";
 
 async function refreshCookie() {
-  const url = `${config.bot.target}/trigger?token=${config.wechatLogin.token}`;
-  await fetch(url);
+  for (let url of config.bot.trigger)  {
+    console.log(`${url}/trigger?token=${config.wechatLogin.token}`)
+    await fetch(`${url}/trigger?token=${config.wechatLogin.token}`);
+  }
 
   for (let i = 0; i < 30; ++i) {
     const url = `${config.bot.target}/cookie?token=${config.wechatLogin.token}`;
@@ -29,8 +31,13 @@ async function refreshCookie() {
 
 async function loadCookie() {
   const cj = new CookieJar(config.wechatLogin.cookiePath);
-  await cj.load();
-  return cj;
+  try {
+    await cj.load();
+    return cj;
+  }
+  catch (err) {
+    return new CookieJar()
+  }
 }
 
 export { refreshCookie, loadCookie };

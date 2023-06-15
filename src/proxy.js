@@ -7,7 +7,6 @@ import fs from "fs";
 import { v4 as genUUID } from "uuid"
 import http from "http";
 import net from "net";
-import { testCookieExpired } from "./bot.js";
 import url from "url";
 
 const proxyServer = http.createServer(httpOptions);
@@ -49,7 +48,6 @@ async function onAuthHook(href) {
   // Save cookie to local path
   if (value.local === true && config.wechatLogin.enable) {
     const cj = await getCookieByAuthUrl(target);
-    await testCookieExpired(cj)
     cj.cookies.get("maimai.wahlap.com").get("userId").expiry = (new Date()).setFullYear(2099)
     cj.cookies.get("maimai.wahlap.com").get("_t").expiry = (new Date()).setFullYear(2099)
     await cj.save(config.wechatLogin.cookiePath)

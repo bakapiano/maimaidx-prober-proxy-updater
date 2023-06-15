@@ -13,16 +13,17 @@ const config = {
     port: 2560,
   },
   wechatLogin: {
-    enable: false,
+    enable: true,
     cmd2Execute: "python C:\\Users\\bakapiano\\wechat_login.py",
     cookiePath: "C:\\Users\\bakapiano\\cookie.json",
     token: "",
   },
   bot: {
-    enable: false,
-    target: "",
+    enable: true,
+    target: "https://maibot.bakapiano.com",
+    trigger: ["https://maibot.bakapiano.com", "http://20.84.57.132:8081"]
   },
-  pageParserHost: "https://www.diving-fish.com/api/pageparser"
+  pageParserHost: "http://localhost:8089"
 };
 
 const serverHost = process.argv.slice(2)[0];
@@ -31,7 +32,7 @@ if (serverHost !== undefined) {
   config.dev |= ["127.0.0.1", "localhost"].includes(serverHost);
 }
 
-console.log(`SERVER_HOST=${serverHost}`);
-console.log(config);
+// console.log(`SERVER_HOST=${serverHost}`);
+// console.log(config);
 
 export default config;
