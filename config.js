@@ -1,5 +1,5 @@
 const config = {
-  host: "maimai.bakapiano.com",
+  host: "maibot.bakapiano.com",
   dev: false,
   fetchTimeOut: 60 * 3 * 1000,
   fetchRetryCount: 3,
@@ -22,6 +22,12 @@ const config = {
     enable: false,
     target: "https://maibot.bakapiano.com",
     trigger: ["https://maibot.bakapiano.com", "http://20.84.57.132:8081"]
+  },
+  interProxy: {
+    enable: true,
+    port: 8848,
+    targetHost: "49.235.118.199",
+    targetPort: 2560,
   },
   pageParserHost: "https://www.diving-fish.com/api/pageparser/"
 };

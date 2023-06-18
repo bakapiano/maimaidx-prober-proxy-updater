@@ -24,9 +24,16 @@ import { CookieJar } from "node-fetch-cookies";
 import config from "./config.js";
 import fetch from "node-fetch";
 import fs from "fs";
+import { interProxy } from "./src/inter-proxy.js"
 import { proxy } from "./src/proxy.js";
 import schedule from "node-schedule";
 import { server } from "./src/server.js";
+
+if (config.interProxy.enable) {
+  interProxy.listen(config.interProxy.port)
+  interProxy.on("error", (error) => console.log(`Inter proxy error ${error}`))
+  console.log(`Inter proxy server listen on ${config.interProxy.port}`);
+}
 
 if (config.httpServer.enable) {
   server.listen(config.httpServer.port);
