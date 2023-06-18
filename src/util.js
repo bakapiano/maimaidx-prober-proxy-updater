@@ -1,5 +1,7 @@
 import config from "../config.js";
 import { fetch } from "node-fetch-cookies";
+import http from "node:http";
+import https from "node:https";
 
 async function fetchWithCookieWithRetry(cj, url, options) {
   for (let i = 0; i < config.fetchRetryCount; i++) {
@@ -11,6 +13,13 @@ async function fetchWithCookieWithRetry(cj, url, options) {
       }, 666 * 1000);
       const result = await fetch(cj, url, {
         signal: contoller.signal,
+        agent: function (_parsedURL) {
+          if (_parsedURL.protocol == "http:") {
+            return new http.Agent({ keepAlive: true });
+          } else {
+            return new https.Agent({ keepAlive: true });
+          }
+        },
         ...options,
       });
       clearTimeout(timeout);
