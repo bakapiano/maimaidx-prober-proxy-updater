@@ -164,7 +164,7 @@ async function genShortcut(type) {
   url += `callbackHost=${encodeURIComponent(callbackHost)}`
   url += `&username=${encodeURIComponent(formValue.value.username)}`
   url += `&password=${encodeURIComponent(formValue.value.password)}`
-  url += `&allDiff=${encodeURIComponent(formValue.value.allDiff)}`
+  url += `&allDiff=${encodeURIComponent(formValue.value.allDiff !== undefined ? formValue.value.allDiff : false)}`
   url += `&type=${encodeURIComponent(type)}`
   console.log(url)
   shortCut.value = url
@@ -177,7 +177,7 @@ async function post(type, jump = true) {
       formValue.value.username,
       formValue.value.password,
       type,
-      formValue.value.allDiff
+      formValue.value.allDiff !== undefined ? formValue.value.allDiff : false
     )
     console.log(result.data)
     saveToLocalStorage()
