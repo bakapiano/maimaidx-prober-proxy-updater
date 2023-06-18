@@ -2,11 +2,7 @@
   <n-spin :show="loadingFirstTrace">
     <n-card title="更新结果">
       <template v-if="error">
-        <n-result
-          status="error"
-          title="未找到更新记录"
-          :description="`UUID: ${uuid}`"
-        />
+        <n-result status="error" title="未找到更新记录" :description="`UUID: ${uuid}`" />
       </template>
       <template v-else>
         <n-space vertical>
@@ -18,11 +14,7 @@
           </div>
           <div class="log">
             <TransitionGroup name="list">
-              <n-text
-                v-for="line in data?.log?.split('\n')"
-                :key="line"
-                tag="div"
-              >
+              <n-text v-for="line in data?.log?.split('\n')" :key="line" tag="div">
                 {{ line || '' }}
               </n-text>
             </TransitionGroup>
@@ -35,19 +27,11 @@
         </n-space>
         <n-divider />
       </template>
-      <n-progress
-        v-if="!error"
-        type="line"
-        :status="
-          { running: 'info', success: 'success', failed: 'error' }[
-            data?.status || 'running'
-          ]
-        "
-        :percentage="data?.progress || 0"
-        :show-indicator="false"
-        :processing="data?.status === 'running'"
-        :indicator-placement="'inside'"
-      />
+      <n-progress v-if="!error" type="line" :status="{ running: 'info', success: 'success', failed: 'error' }[
+        data?.status || 'running'
+        ]
+        " :percentage="data?.progress || 0" :show-indicator="false" :processing="data?.status === 'running'"
+        :indicator-placement="'inside'" />
     </n-card>
   </n-spin>
 </template>
@@ -65,12 +49,12 @@ const message = useMessage()
 
 const data = ref(undefined)
 const loadingFirstTrace = ref(true)
-const fetchCount = ref(0)
 const error = ref(false)
 const inProgress = ref(true)
 
 const { uuid } = route.params
 let intervalId = null
+let failedFetchCount = 0 
 
 watch(inProgress, async (value, oldValue) => {
   if (oldValue && !value) {
@@ -84,32 +68,31 @@ watch(inProgress, async (value, oldValue) => {
 })
 
 onMounted(
-  () =>
+  () => intervalId === null &&
     (intervalId = setInterval(async () => {
+      let result = undefined
       try {
-        data.value = (await getTrace(uuid)).data
-      } catch (err) {
-        data.value = undefined
-      }
-      console.log(data.value)
+        result = (await getTrace(uuid)).data
+      } catch (_err) { /* empty */ }
 
-      // Failed to load trace info
-      if (!data.value?.status) {
-        fetchCount.value += 1
-        if (fetchCount.value >= MAX_FETCH_COUNT) {
+      if (result && result.status) {
+        data.value = result
+        if (data.value?.status == 'failed' || data.value?.status == 'success') {
+          inProgress.value = false
+        }
+        if (loadingFirstTrace.value) {
+          loadingFirstTrace.value = false
+        }
+      } else if (loadingFirstTrace.value) {
+        failedFetchCount += 1
+        if (failedFetchCount >= MAX_FETCH_COUNT) {
           message.error(`未找到 ${uuid}`)
           inProgress.value = false
           loadingFirstTrace.value = false
           error.value = true
         }
-      } else if (loadingFirstTrace.value) {
-        loadingFirstTrace.value = false
       }
-
-      if (data.value?.status == 'failed' || data.value?.status == 'success') {
-        inProgress.value = false
-      }
-    }, 1000))
+    }, 2000))
 )
 </script>
 
