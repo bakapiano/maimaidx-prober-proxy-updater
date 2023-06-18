@@ -39,7 +39,8 @@ async function getAuthUrl(type) {
 
 const getCookieByAuthUrl = async (authUrl) => {
   const cj = new CookieJar();
-  const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
+  const fetch = async (url, options) =>
+    await fetchWithCookieWithRetry(cj, url, options);
   await fetch(authUrl, {
     headers: {
       Host: "tgk-wcaime.wahlap.com",
@@ -61,16 +62,24 @@ const getCookieByAuthUrl = async (authUrl) => {
   await fetch("https://maimai.wahlap.com/maimai-mobile/home/");
 
   return cj;
-}
+};
 
-const updateMaimaiScore = async (username, password, authUrl, traceUUID, logCreatedCallback) => {
+const updateMaimaiScore = async (
+  username,
+  password,
+  authUrl,
+  traceUUID,
+  allDiff,
+  logCreatedCallback
+) => {
   try {
     const trace = useTrace(traceUUID);
     const stage = useStage(trace);
-    
+
     const cj = new CookieJar();
 
-    const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
+    const fetch = async (url, options) =>
+      await fetchWithCookieWithRetry(cj, url, options);
 
     await trace({
       log: "开始更新 maimai 成绩",
@@ -103,67 +112,84 @@ const updateMaimaiScore = async (username, password, authUrl, traceUUID, logCrea
         "https://maimai.wahlap.com/maimai-mobile/home/"
       );
       const body = await result.text();
-      
+
       if (body.match("错误")) {
         throw new Error("登录公众号时出现错误");
       }
     });
 
-    const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"]
-    const tasks = []
+    const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"];
+    const tasks = [];
     for (let diff = 0; diff < 5; diff++) {
       const progress = 9;
       const task = stage(`更新 ${descriptions[diff]} 难度分数`, 0, async () => {
-          let body = undefined;
-
-          await stage(`获取 ${descriptions[diff]} 分数`, progress, async () => {
-            const result = await fetch(
-              `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${diff}`
-            );
-            body = (await result.text())
-              .match(/<html.*>([\s\S]*)<\/html>/)[1]
-              .replace(/\s+/g, " ");
+        if (!allDiff && diff <= 1) {
+          // await setTimeout(() => {}, 1000 * (diff + 1));
+          await trace({
+            log: `难度 ${descriptions[diff]} 更新已跳过`,
+            progress: progress * 2,
           });
-
-          await stage(`上传 ${descriptions[diff]} 分数至 diving-fish 查分器数据库`, progress, async () => {
-              const uploadResult = await fetch(
-                `${config.pageParserHost}/page`,
-                {
-                  method: "post",
-                  headers: { "content-type": "text/plain" },
-                  body: `<login><u>${username}</u><p>${password}</p></login>${body}`,
-                }
-              );
-
-              const log = `diving-fish 上传 ${descriptions[diff]} 分数接口返回消息: ${await uploadResult.text()}`;
-              await trace({log});
-            }
-          );
+          return;
         }
-      );
-      tasks.push(task)
+
+        let body = undefined;
+
+        await stage(`获取 ${descriptions[diff]} 分数`, progress, async () => {
+          const result = await fetch(
+            `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${diff}`
+          );
+          body = (await result.text())
+            .match(/<html.*>([\s\S]*)<\/html>/)[1]
+            .replace(/\s+/g, " ");
+        });
+
+        await stage(
+          `上传 ${descriptions[diff]} 分数至 diving-fish 查分器数据库`,
+          progress,
+          async () => {
+            const uploadResult = await fetch(`${config.pageParserHost}/page`, {
+              method: "post",
+              headers: { "content-type": "text/plain" },
+              body: `<login><u>${username}</u><p>${password}</p></login>${body}`,
+            });
+
+            const log = `diving-fish 上传 ${
+              descriptions[diff]
+            } 分数接口返回消息: ${await uploadResult.text()}`;
+            await trace({ log });
+          }
+        );
+      });
+      tasks.push(task);
     }
 
-    await Promise.all(tasks)
+    await Promise.all(tasks);
 
     await trace({
       log: "maimai 数据更新完成",
       process: 0,
       status: "success",
     });
-    
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 };
 
-const updateChunithmScore = async (username, password, authUrl, traceUUID, logCreatedCallback) => {
+const updateChunithmScore = async (
+  username,
+  password,
+  authUrl,
+  traceUUID,
+  allDiff,
+  logCreatedCallback
+) => {
   try {
     const trace = useTrace(traceUUID);
     const stage = useStage(trace);
     const cj = new CookieJar();
-    const fetch = async (url, options) => await fetchWithCookieWithRetry(cj, url, options);
-    
+    const fetch = async (url, options) =>
+      await fetchWithCookieWithRetry(cj, url, options);
+
     await trace({
       log: "开始更新 chunithm 成绩",
       status: "running",
@@ -171,8 +197,8 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID, logCr
     });
 
     logCreatedCallback();
-    
-    await stage("登录公众号", 6.25, async ()=>{
+
+    await stage("登录公众号", 6.25, async () => {
       const authResult = await fetch(authUrl, {
         headers: {
           Connection: "keep-alive",
@@ -189,12 +215,12 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID, logCr
           "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
         },
       });
-  
+
       const body = await authResult.text();
       if (body.match("错误码")) {
-        throw new Error("登陆公众号时存在错误码")
+        throw new Error("登陆公众号时存在错误码");
       }
-  
+
       const loginResult = await fetch(
         "https://www.diving-fish.com/api/maimaidxprober/login",
         {
@@ -206,10 +232,10 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID, logCr
         }
       );
       if (loginResult.status === 401) {
-        throw new Error("登录 http 请求状态码为 401")
+        throw new Error("登录 http 请求状态码为 401");
       }
-    })
-    
+    });
+
     const urls = [
       ["/record/musicGenre/sendBasic", "/record/musicGenre/basic"],
       ["/record/musicGenre/sendAdvanced", "/record/musicGenre/advanced"],
@@ -228,17 +254,25 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID, logCr
       "Ultima",
       "WorldsEnd",
       "最近游玩",
-    ]
+    ];
 
     const _t = cj.cookies.get("chunithm.wahlap.com").get("_t").value;
 
-    const tasks = []
-    for (let i = 0; i < 7; i ++) {
-      const url = urls[i]
+    const tasks = [];
+    for (let i = 0; i < 7; i++) {
+      const url = urls[i];
       const task = stage(`更新 ${descriptions[i]} 分数`, 0, async () => {
-        let resultHtml = undefined
-        
-        await stage(`获取 ${descriptions[i]} 分数`, 6.25, async()=>{
+        if (!allDiff && i <= 1) {
+          await trace({
+            log: `难度 ${descriptions[i]} 更新已跳过`,
+            progress: 6.25 * 2,
+          });
+          return;
+        }
+
+        let resultHtml = undefined;
+
+        await stage(`获取 ${descriptions[i]} 分数`, 6.25, async () => {
           if (url[0]) {
             await fetch("https://chunithm.wahlap.com/mobile" + url[0], {
               method: "POST",
@@ -248,38 +282,45 @@ const updateChunithmScore = async (username, password, authUrl, traceUUID, logCr
               },
             });
           }
-    
-          const result = await fetch("https://chunithm.wahlap.com/mobile" + url[1]);
-          resultHtml = await result.text();
-        })
-        
-        await stage(`上传 ${descriptions[i]} 分数至 diving-fish 查分器数据库`, 6.25, async () => {
-          const uploadResult = await fetch(
-            "https://www.diving-fish.com/api/chunithmprober/player/update_records_html" +
-              (url[1].includes("Recent") ? "?recent=1" : ""),
-            {
-              method: "POST",
-              body: resultHtml,
-            }
+
+          const result = await fetch(
+            "https://chunithm.wahlap.com/mobile" + url[1]
           );
-    
-          const log = `diving-fish 上传 ${descriptions[i]} 分数接口返回消息: ${await uploadResult.text()}`
-          await trace({log})
-        })
-      })
-      tasks.push(task)
+          resultHtml = await result.text();
+        });
+
+        await stage(
+          `上传 ${descriptions[i]} 分数至 diving-fish 查分器数据库`,
+          6.25,
+          async () => {
+            const uploadResult = await fetch(
+              "https://www.diving-fish.com/api/chunithmprober/player/update_records_html" +
+                (url[1].includes("Recent") ? "?recent=1" : ""),
+              {
+                method: "POST",
+                body: resultHtml,
+              }
+            );
+
+            const log = `diving-fish 上传 ${
+              descriptions[i]
+            } 分数接口返回消息: ${await uploadResult.text()}`;
+            await trace({ log });
+          }
+        );
+      });
+      tasks.push(task);
     }
 
-    await Promise.all(tasks)
+    await Promise.all(tasks);
 
     await trace({
       log: "chunithm 数据更新完成",
       progress: 6.25,
       status: "success",
     });
-    
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 };
 

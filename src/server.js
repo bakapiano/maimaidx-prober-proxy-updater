@@ -20,12 +20,17 @@ app.use(cors());
 const jsonParser = bodyParser.json({ extended: false });
 
 async function serve(serverReq, serverRes, data, redirect) {
-  let { username, password, callbackHost, type } = data;
-  console.log(username, password, callbackHost, type);
+  let { username, password, callbackHost, type, allDiff } = data;
+  console.log(username, password, callbackHost, type, allDiff);
 
   if (!username || !password) {
     serverRes.status(400).send("用户名或密码不能为空！");
     return;
+  }
+
+  // Update all diff or not
+  if (allDiff === undefined || allDiff === null) {
+    allDiff = false
   }
 
   // Update maimai dx by default
@@ -56,7 +61,7 @@ async function serve(serverReq, serverRes, data, redirect) {
   const { redirect_uri } = resultUrl.query;
   const key = url.parse(redirect_uri, true).query.r;
 
-  await setValue(key, { username, password, callbackHost });
+  await setValue(key, { username, password, callbackHost, allDiff });
   // setTimeout(() => delValue(key), 1000 * 60 * 5);
 
   increaseCount()

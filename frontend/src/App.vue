@@ -62,7 +62,7 @@
               style="z-index: 998244353"
               collapse-mode="width"
               :collapsed-width="0"
-              :width="96"
+              :width="128"
               :collapsed="collapsed"
               :collapsed-trigger-style="'right: -20px'"
               @collapse="collapsed = true"
@@ -153,7 +153,7 @@ const menuOptions = [
             path: '/',
           },
         },
-        { default: () => '主页' }
+        { default: () => '更新数据' }
       ),
     key: 'home',
   },
@@ -166,7 +166,7 @@ const menuOptions = [
             path: '/score/',
           },
         },
-        { default: () => '成绩' }
+        { default: () => '成绩/B50' }
       ),
     key: 'score',
     to: '/score',
@@ -176,15 +176,32 @@ const menuOptions = [
       h(
         RouterLink,
         {
+          onClick: () => {
+            window.location.href = 'https://www.diving-fish.com/maimaidx/prober/'
+          },
           to: {
-            path: '/bot/',
+            path: '/',
           },
         },
-        { default: () => 'bot' }
+        { default: () => '水鱼查分器' }
       ),
-    key: 'bot',
-    to: '/bot',
+    key: 'diving-fish',
+    // to: 'https://www.diving-fish.com/maimaidx/prober/',
   },
+  // {
+  //   label: () =>
+  //     h(
+  //       RouterLink,
+  //       {
+  //         to: {
+  //           path: '/bot/',
+  //         },
+  //       },
+  //       { default: () => 'bot' }
+  //     ),
+  //   key: 'bot',
+  //   to: '/bot',
+  // },
 ]
 </script>
 

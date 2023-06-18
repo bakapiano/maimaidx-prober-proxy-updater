@@ -14,7 +14,7 @@ async function appendLog(uuid, text) {
     .toLocaleString("en", { timeZone: "Asia/Shanghai" })
     .split(",")[1]
     .trim();
-  const log = `[${time}] ${text}` + "\n";
+  const log = `[${time.replace(" ", "")}] ${text}` + "\n";
   await appendValue(key, log, "");
 }
 
@@ -36,22 +36,44 @@ async function getTrace(uuid) {
   };
 }
 
+const queue = {};
+
+function tryExecute(uuid) {
+  if (queue[uuid] === undefined || queue[uuid].length === 0) return
+  const {payload, execute, resolve, reject} = queue[uuid][0]
+  execute(payload)
+    .then(()=>{
+      resolve()
+      queue[uuid].shift()
+      tryExecute(uuid)
+    })
+    .catch(()=>{
+      reject()
+      queue[uuid].shift()
+      tryExecute(uuid)
+    })
+}
+
 function useTrace(uuid) {
-  return async (payload) => {
-    console.log(uuid, payload);
-    const { status, log, progress } = payload;
-    status && (await setStatus(uuid, status));
-    log && (await appendLog(uuid, log));
-    progress !== undefined && (await setProgress(uuid, progress));
-    // Auto expire trace in db
-    // (status === "success" || status === "failed") && await expireTrace(uuid);
-  };
+  return (payload) =>
+    new Promise((resolve, reject) => {
+      const execute = async (payload) => {
+        console.log(uuid, payload);
+        const { status, log, progress } = payload;
+        status && (await setStatus(uuid, status));
+        log && (await appendLog(uuid, log));
+        progress !== undefined && (await setProgress(uuid, progress));
+      };
+      if (queue[uuid] === undefined) queue[uuid] = [];
+      queue[uuid].push({ payload, execute, resolve, reject });
+      if (queue[uuid].length === 1) tryExecute(uuid)
+    });
 }
 
 function useStage(trace) {
   let failed = false;
   return async (description, progress, func) => {
-    await trace({ log: `开始${description}` });
+    await trace({ log: `开始${description}...` });
     for (let i = 0; i < config.stageRetryCount; i++) {
       try {
         await func();
@@ -67,7 +89,11 @@ function useStage(trace) {
           });
           throw error;
         } else {
-          await trace({log: `${description}时出现错误: ${String(error)}; 进行第${i + 1}次重试`})
+          await trace({
+            log: `${description}时出现错误: ${String(error)}; 进行第${
+              i + 1
+            }次重试`,
+          });
           await new Promise((r) => {
             setTimeout(r, 1000);
           });
@@ -75,7 +101,7 @@ function useStage(trace) {
       }
     }
 
-    await trace({ log: `${description}完成`, progress });
+    await trace({ log: `${description}完成!`, progress });
   };
 }
 

@@ -26,9 +26,9 @@ async function getValue(key) {
 }
 
 async function appendValue(key, value, defaultValue) {
-  const current = memoDB.data[key];
+  let current = memoDB.data[key];
   if (current === undefined) {
-    memoDB.data[key] = defaultValue;
+    current = defaultValue;
   }
   memoDB.data.time[key] = new Date().getTime();
   memoDB.data[key] = current + value;

@@ -59,8 +59,8 @@ const props = defineProps(['data'])
 function getCoverPathById(songId) {
   const baseURL = 'https://www.diving-fish.com/covers/'
   let i = parseInt(songId)
-  if (i > 10000) i -= 10000
-  return baseURL + (i + '').padStart(4, '0') + '.png'
+  if (i > 10000 && i <= 11000) i -= 10000
+  return baseURL + (i + '').padStart(5, '0') + '.png'
 }
 
 function getAchievementName(achievements) {

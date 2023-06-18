@@ -2,7 +2,7 @@
   <n-spin :show="loadingMusicData">
     <div v-if="!loadingMusicDataError" style="margin-top: 24px">
       <!-- <n-card title="查分器用户名"> -->
-      <h1>获取 B40</h1>
+      <h1>获取 B50</h1>
       <n-input-group style="margin-top: 8px">
         <n-select
           v-model:value="queryType"
@@ -33,13 +33,13 @@
           </span>
         </h1>
         <!-- <n-divider /> -->
-        <h1>旧铺面 BEST 25</h1>
+        <h1>旧铺面 BEST 35</h1>
         <n-grid
           x-gap="12"
           cols="2 400:3 600:4 800:5 1000:6 1200:7 1400:8"
           responsive="self"
         >
-          <n-gi v-for="(data, index) in getB25(playerData)" :key="index">
+          <n-gi v-for="(data, index) in getB35(playerData)" :key="index">
             <music-record :data="data" />
           </n-gi>
           <!-- <n-gi> -->
@@ -116,6 +116,7 @@ watch(() => {
 
 const queryLock = ref(false)
 
+// TODO: Add save screen shoot to local
 function onExportImage() {
   domtoimage.toBlob(document.getElementById('score')).then(function (blob) {
     window.saveAs(blob, 'my-node.png')
@@ -132,6 +133,7 @@ function onQueryUserScore() {
   getPlayerData({
     qq: queryType.value === 'qq' ? queryValue.value : null,
     username: queryType.value === 'username' ? queryValue.value : null,
+    b50: true,
   })
     .then((result) => {
       console.log(result.data)
@@ -155,7 +157,7 @@ function isNew(record) {
   return musicDataDict[record.song_id].basic_info.is_new > 0
 }
 
-function getB25(playerData) {
+function getB35(playerData) {
   // console.log(playerData.records)
   // console.log(
   // playerData.records.reduce((total, record) => total + Number(record.ra), 0)
@@ -164,7 +166,7 @@ function getB25(playerData) {
   return playerData.records
     .filter((record) => !isNew(record))
     .sort((a, b) => b.ra - a.ra)
-    .slice(0, 25)
+    .slice(0, 35)
 }
 
 function getB15(playerData) {
@@ -172,7 +174,7 @@ function getB15(playerData) {
   return playerData.records
     .filter((record) => isNew(record))
     .sort((a, b) => b.ra - a.ra)
-    .slice(0, 25)
+    .slice(0, 15)
 }
 </script>
 

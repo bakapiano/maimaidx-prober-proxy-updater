@@ -17,38 +17,33 @@
             <n-form
               ref="formRef"
               class="form"
-              label-placement="left"
               :model="formValue"
               :rules="rules"
             >
-              <n-form-item path="username">
+              <n-form-item path="username" label="查分器账号">
                 <n-input
                   v-model:value="formValue.username"
-                  placeholder="查分器账号"
+                  placeholder="username"
                 />
               </n-form-item>
-              <n-form-item path="password">
+              <n-form-item path="password" label="查分器密码">
                 <n-input
                   v-model:value="formValue.password"
                   type="password"
                   show-password-on="click"
-                  placeholder="查分器密码"
+                  placeholder="password"
                 />
               </n-form-item>
-              <n-space vertical>
-                <n-checkbox
-                  value=""
-                  :checked="remember"
-                  @change="rememberChange"
-                >
-                  记住账号和密码
-                </n-checkbox>
-              </n-space>
+              <n-form-item path="allDiff" label="更新所有难度">
+                <n-switch v-model:value="formValue.allDiff">
+                  <template #checked>All difficulties</template>
+                  <template #unchecked> Expert,Master,Re:Master </template>
+                </n-switch>
+              </n-form-item>
+              <n-form-item label="记住账号密码">
+                <n-switch v-model:value="remember" @change="rememberChange" />
+              </n-form-item>
             </n-form>
-            <!-- <n-a @click="() => genShortcut(updateType)">
-              生成快速更新链接 - 
-              {{ { "maimai-dx": "舞萌", chunithm: "中二" }[updateType] }}
-            </n-a> -->
           </n-space>
         </n-tab-pane>
       </n-tabs>
@@ -169,6 +164,7 @@ async function genShortcut(type) {
   url += `callbackHost=${encodeURIComponent(callbackHost)}`
   url += `&username=${encodeURIComponent(formValue.value.username)}`
   url += `&password=${encodeURIComponent(formValue.value.password)}`
+  url += `&allDiff=${encodeURIComponent(formValue.value.allDiff)}`
   url += `&type=${encodeURIComponent(type)}`
   console.log(url)
   shortCut.value = url
@@ -180,7 +176,8 @@ async function post(type, jump = true) {
     const result = await postForm(
       formValue.value.username,
       formValue.value.password,
-      type
+      type,
+      formValue.value.allDiff
     )
     console.log(result.data)
     saveToLocalStorage()

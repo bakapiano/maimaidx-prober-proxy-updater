@@ -1,11 +1,17 @@
 import axios from 'axios'
+import { env } from '../common/env'
 
-// const HOST = "http://127.0.0.1:8081"
+console.log(import.meta.env)
 
-const service = axios.create({
-  // baseURL: HOST,
+const config = {
   timeout: 1000 * 10,
-})
+}
+
+if (env.dev) {
+  config.baseURL = 'http://127.0.0.1:8081'
+}
+
+const service = axios.create(config)
 
 service.interceptors.request.use((config) => {
   return config

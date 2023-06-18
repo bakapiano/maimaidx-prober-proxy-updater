@@ -19,11 +19,11 @@
           <div class="log">
             <TransitionGroup name="list">
               <n-text
-                v-for="line in data.log.split('\n')"
+                v-for="line in data?.log?.split('\n')"
                 :key="line"
                 tag="div"
               >
-                {{ line }}
+                {{ line || '' }}
               </n-text>
             </TransitionGroup>
             <div v-if="inProgress">
