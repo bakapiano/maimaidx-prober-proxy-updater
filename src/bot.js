@@ -13,14 +13,15 @@ const fetch = async (cj, url, options, retry = 1) => {
       `Cookie expired, try to reload cookie from local, retry time: ${retry}`
     );
     return await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        loadCookie()
-          .then((new_cj) => {
-            fetch(new_cj, url, options, retry + 1)
-              .then(resolve)
-              .catch(reject);
-          })
-          .catch(reject);
+      setTimeout(async () => {
+        try {
+          await cj.load();
+        } catch (_err) {
+        } finally {
+          await fetch(cj, url, options, retry + 1)
+            .then(resolve)
+            .catch(reject);
+        }
       }, 1000 * 30);
     });
   }
