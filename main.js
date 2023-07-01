@@ -129,7 +129,7 @@ if (config.bot.enable)
             log: `好友请求发送成功！请同意好友请求来继续`,
             progress: 10,
           });
-          await setValue(friendCode, { ...data, status: "sent" });
+          await setValue(friendCode, { ...data, status: "sent"});
           continue;
         }
 
@@ -148,7 +148,7 @@ if (config.bot.enable)
             const requests = await getSentRequests(cj);
             if (!(friendCode in requests)) appendQueue(data); // TODO: skip freiend code validation next try
             else {
-              await setValue(friendCode, { ...data, status: "sent" });
+              await setValue(friendCode, { ...data, status: "sent"});
               await trace({
                 log: `好友请求发送成功！请同意好友请求来继续`,
                 progress: 10,
@@ -180,12 +180,24 @@ if (config.bot.enable)
             const trace = useTrace(traceUUID);
             const stage = useStage(trace);
 
-            if (status === "running") return resolve();
+            if (status === "running") {
+              const { time } = data
+              const delta = new Date().getTime() - time
+              if (delta > 1000 * 60 * 15) {
+                await trace({
+                  log: `更新时间过长，请重试`,
+                  status: "failed",
+                });
+                await delValue(cj, friendCode);
+              }
+              return resolve();
+            }
+
             await trace({
               log: `已成功添加好友！`,
               progress: 10,
             });
-            await setValue(friendCode, { ...data, status: "running" });
+            await setValue(friendCode, { ...data, status: "running", time: new Date().getTime()});
             resolve();
 
             const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"];

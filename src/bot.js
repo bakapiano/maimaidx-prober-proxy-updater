@@ -1,43 +1,51 @@
 import config from "../config.js";
-import { fetch as fetchWithCookie } from "node-fetch-cookies";
+import { fetchWithCookieWithRetry } from "./util.js";
 import { loadCookie } from "./wechat.js";
 
 const fetch = async (cj, url, options, retry = 1) => {
-  const result = await fetchWithCookie(cj, url, options);
-  // console.log(result.url)
-  if (result.url.indexOf("error") != -1 || await testCookieExpired(cj)) {
+  const result = await fetchWithCookieWithRetry(cj, url, options);
+  if (result.url.indexOf("error") != -1 || (await testCookieExpired(cj))) {
     if (retry === 3) {
       throw new Error("Cookie expired");
     }
 
+    console.log(
+      `Cookie expired, try to reload cookie from local, retry time: ${retry}`
+    );
     return await new Promise((resolve, reject) => {
-      cj.load()
-        .then(
-          fetch(cj, url, options, retry + 1)
-          .then(resolve)
-          .catch(reject)
-        )
-        .catch(reject);
-    })
+      setTimeout(() => {
+        cj.load()
+          .then(() => {
+            fetch(cj, url, options, retry + 1)
+              .then(resolve)
+              .catch(reject);
+          })
+          .catch(reject);
+      }, 1000 * 10);
+    });
   }
 
   const old = await loadCookie();
-  if (old.cookies?.get("maimai.wahlap.com")?.get("_t")?.value !== undefined && old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value !== undefined) {
+  if (
+    old.cookies?.get("maimai.wahlap.com")?.get("_t")?.value !== undefined &&
+    old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value !== undefined
+  ) {
     if (
-      cj.cookies?.get("maimai.wahlap.com")?.get("_t")?.value !==
+      (cj.cookies?.get("maimai.wahlap.com")?.get("_t")?.value !==
         old.cookies?.get("maimai.wahlap.com")?.get("_t")?.value ||
-      cj.cookies?.get("maimai.wahlap.com")?.get("userId")?.value !==
-        old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value
+        cj.cookies?.get("maimai.wahlap.com")?.get("userId")?.value !==
+          old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value) &&
+      !(await testCookieExpired(cj))
     ) {
-      console.log("Cookies changes", cj.cookies, old.cookies)
+      console.log("Cookies changes", cj.cookies, old.cookies);
       await cj.save();
     }
-  } 
+  }
   return result;
 };
 
 const testCookieExpired = async (cj) => {
-  const result = await fetchWithCookie(
+  const result = await fetchWithCookieWithRetry(
     cj,
     "https://maimai.wahlap.com/maimai-mobile/home/"
   );
@@ -121,7 +129,7 @@ const getFriendList = async (cj) => {
   const t = text.matchAll(/<input type="hidden" name="idx" value="(.*?)"/g);
   const ids = [...new Set([...t].map((x) => x[1]))];
   // console.log(result);
-  console.log(ids)
+  console.log(ids);
   return ids;
 };
 
@@ -166,14 +174,14 @@ const sendFriendRequest = async (cj, friendCode) => {
 };
 
 const validateFriendCode = async (cj, friendCode) => {
-  const result = await fetch (
+  const result = await fetch(
     cj,
     `https://maimai.wahlap.com/maimai-mobile/friend/search/searchUser/?friendCode=${friendCode}`
   );
   const body = await result.text();
   const validateResult = body.indexOf("找不到该玩家") === -1;
-  return validateResult
-}
+  return validateResult;
+};
 
 export {
   getFriendList,

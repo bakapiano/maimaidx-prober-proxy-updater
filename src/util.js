@@ -9,6 +9,7 @@ async function fetchWithCookieWithRetry(cj, url, options) {
       // timeout
       const contoller = new AbortController();
       const timeout = setTimeout(() => {
+        console.log(`fetch canceled due to timeout`)
         contoller.abort();
       }, config.fetchTimeOut);
       const result = await fetch(cj, url, {
