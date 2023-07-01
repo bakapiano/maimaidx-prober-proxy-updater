@@ -312,6 +312,12 @@ if (config.bot.enable)
                 },
                 true
               );
+            } catch (err) {
+              console.log(err);
+              await trace({
+                log: `更新数据时出现错误: ${String(err)}`,
+                status: "failed",
+              });
             } finally {
               await delValue(friendCode);
             }
