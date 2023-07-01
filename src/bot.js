@@ -5,7 +5,7 @@ import { loadCookie } from "./wechat.js";
 const fetch = async (cj, url, options, retry = 1) => {
   const result = await fetchWithCookieWithRetry(cj, url, options);
   if (result.url.indexOf("error") != -1 || (await testCookieExpired(cj))) {
-    if (retry === 4) {
+    if (retry === 10) {
       throw new Error("Cookie expired");
     }
 

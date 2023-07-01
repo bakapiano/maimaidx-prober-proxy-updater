@@ -83,12 +83,30 @@ function single(func) {
   };
 }
 
+const botCookieRefresher = new schedule.RecurrenceRule();
+botCookieRefresher.minute = [];
+for (let min = 0; min < 60; min += 1) {
+  botCookieRefresher.minute.push(min);
+}
+var cookieLock = false;
+function cookieSingle(func) {
+  return async () => {
+    if (cookieLock) return;
+    cookieLock = true;
+    try {
+      await func();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      cookieLock = false;
+    }
+  };
+}
 if (config.bot.enable)
   schedule.scheduleJob(
-    botRule,
-    single(async () => {
-      console.log("Bot wake up");
-
+    botCookieRefresher,
+    cookieSingle(async () => {
+      console.log("Cookie refresher wake up");
       let cj = null;
       let failed = true;
 
@@ -108,8 +126,17 @@ if (config.bot.enable)
         await refreshCookie();
         cj = await loadCookie();
       }
+    })
+  );
 
-      // console.log(cj.cookies);
+if (config.bot.enable)
+  schedule.scheduleJob(
+    botRule,
+    single(async () => {
+      console.log("Bot wake up");
+
+      let cj = null;
+      cj = await loadCookie();
 
       const requests = await getSentRequests(cj);
       const friends = await getFriendList(cj);
@@ -133,37 +160,39 @@ if (config.bot.enable)
           continue;
         }
 
-        validateFriendCode(cj, friendCode).then(async (result) => {
-          if (!result) {
-            await trace({
-              log: `玩家不存在，请检查好友代码！`,
-              status: "failed",
-            });
-            await delValue(friendCode);
-            return;
-          }
+        validateFriendCode(cj, friendCode)
+          .then(async (result) => {
+            if (!result) {
+              await trace({
+                log: `玩家不存在，请检查好友代码！`,
+                status: "failed",
+              });
+              await delValue(friendCode);
+              return;
+            }
 
-          sendFriendRequest(cj, friendCode)
-            .then(async () => {
-              const requests = await getSentRequests(cj);
-              if (!(friendCode in requests)) appendQueue(data);
-              // TODO: skip freiend code validation next try
-              else {
-                await setValue(friendCode, { ...data, status: "sent" });
-                await trace({
-                  log: `好友请求发送成功！请同意好友请求来继续`,
-                  progress: 10,
-                });
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-              appendQueue(data);
-            });
-        }).catch((err) => {
-          console.log(err);
-          appendQueue(data);
-        });
+            sendFriendRequest(cj, friendCode)
+              .then(async () => {
+                const requests = await getSentRequests(cj);
+                if (!(friendCode in requests)) appendQueue(data);
+                // TODO: skip freiend code validation next try
+                else {
+                  await setValue(friendCode, { ...data, status: "sent" });
+                  await trace({
+                    log: `好友请求发送成功！请同意好友请求来继续`,
+                    progress: 10,
+                  });
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+                appendQueue(data);
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+            appendQueue(data);
+          });
       }
 
       // Get friend list
