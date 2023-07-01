@@ -20,6 +20,7 @@ import {
   validateFriendCode,
 } from "./src/bot.js";
 import { loadCookie, refreshCookie } from "./src/wechat.js";
+import { useStage, useTrace } from "./src/trace.js";
 
 import { CookieJar } from "node-fetch-cookies";
 import config from "./config.js";
@@ -29,7 +30,6 @@ import { interProxy } from "./src/inter-proxy.js"
 import { proxy } from "./src/proxy.js";
 import schedule from "node-schedule";
 import { server } from "./src/server.js";
-import { useTrace } from "./src/trace.js";
 
 if (config.interProxy.enable) {
   interProxy.listen(config.interProxy.port)
@@ -178,6 +178,7 @@ if (config.bot.enable)
 
             const { username, password, traceUUID, status } = data;
             const trace = useTrace(traceUUID);
+            const stage = useStage(trace);
 
             if (status === "running") return resolve();
             await trace({
@@ -190,54 +191,38 @@ if (config.bot.enable)
             const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"];
             await favoriteOnFriend(cj, friendCode);
             await Promise.all(
-              [0, 1, 2, 3, 4].map(async (diff) => {
-                try {
-                  await trace({
-                    log: `开始更新 ${descriptions[diff]} 难度数据`,
-                  });
-                  
-                  let v1 = await getFriendVS(cj, friendCode, 1, diff);
-                  let v2 = await getFriendVS(cj, friendCode, 2, diff);
+              [0, 1, 2, 3, 4].map(stage(`更新 ${descriptions[diff]} 难度数据`, 16, async (diff) => {
+                let v1 = undefined
+                let v2 = undefined
+                await stage(`获取 ${descriptions[diff]} 难度友人对战数据`, 0, async () => {
+                  await Promise.all([
+                    getFriendVS(cj, friendCode, 1, diff).then(result => v1 = result),
+                    getFriendVS(cj, friendCode, 2, diff).then(result => v2 = result),
+                  ])
+                })
 
-                  await trace({
-                    log: `${descriptions[diff]} 难度友人对战数据获取成功`,
-                  });
+                v1 = v1
+                  .match(/<html.*>([\s\S]*)<\/html>/)[1]
+                  .replace(/\s+/g, " ");
+                v2 = v2
+                  .match(/<html.*>([\s\S]*)<\/html>/)[1]
+                  .replace(/\s+/g, " ");
+                const url = `${config.pageParserHost}/page/friendVS`;
 
-                  v1 = v1
-                    .match(/<html.*>([\s\S]*)<\/html>/)[1]
-                    .replace(/\s+/g, " ");
-                  v2 = v2
-                    .match(/<html.*>([\s\S]*)<\/html>/)[1]
-                    .replace(/\s+/g, " ");
-                  const url = `${config.pageParserHost}/page/friendVS`;
-  
-                  const uploadResult = await fetch(url, {
-                    method: "POST",
-                    headers: { "content-type": "text/plain" },
-                    body: `<login><u>${username}</u><p>${password}</p></login><dxscorevs>${v1}</dxscorevs><achievementsvs>${v2}</achievementsvs>`,
-                  });
-                  console.log(descriptions[diff], uploadResult);
+                const uploadResult = await fetch(url, {
+                  method: "POST",
+                  headers: { "content-type": "text/plain" },
+                  body: `<login><u>${username}</u><p>${password}</p></login><dxscorevs>${v1}</dxscorevs><achievementsvs>${v2}</achievementsvs>`,
+                });
+                console.log(descriptions[diff], uploadResult);
 
-                  const log = `diving-fish 上传 ${
-                    descriptions[diff]
-                  } 分数接口返回消息: ${await uploadResult.text()}`;
-                  await trace({log,});
-                }
-                catch (err) {
-                  console.log(err);
-                  await trace({
-                    log: `${descriptions[diff]} 难度数据更新时出现错误 ${err}`,
-                    progress: 0,
-                  });
-                }
-                finally {
-                  await trace({
-                    log: `${descriptions[diff]} 难度数据结束`,
-                    progress: 16,
-                  });
-                }
-              })
+                const log = `diving-fish 上传 ${
+                  descriptions[diff]
+                } 分数接口返回消息: ${await uploadResult.text()}`;
+                await trace({log});
+              }))
             );
+            
             await favoriteOffFriend(cj, friendCode);
             await removeFriend(cj, friendCode);
             await delValue(cj, friendCode);
