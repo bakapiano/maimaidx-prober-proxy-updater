@@ -5,18 +5,18 @@ import https from "node:https";
 
 async function fetchWithCookieWithRetry(cj, url, options) {
   for (let i = 0; i < config.fetchRetryCount; i++) {
+    // timeout
+    const contoller = new AbortController();
+    const timeout = setTimeout(() => {
+      console.log(`fetch canceled due to timeout`)
+      try {
+        contoller.abort();
+      }
+      catch(err) {
+        console.log("failed to cancel timeout fetch: ", err)
+      }
+    }, config.fetchTimeOut);
     try {
-      // timeout
-      const contoller = new AbortController();
-      const timeout = setTimeout(() => {
-        console.log(`fetch canceled due to timeout`)
-        try {
-          contoller.abort();
-        }
-        catch(err) {
-          console.log("failed to cancel timeout fetch: ", err)
-        }
-      }, config.fetchTimeOut);
       const result = await fetch(cj, url, {
         signal: contoller.signal,
         agent: function (_parsedURL) {
