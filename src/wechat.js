@@ -30,8 +30,8 @@ async function refreshCookie() {
 }
 
 async function loadCookie() {
-  const cj = new CookieJar(config.wechatLogin.cookiePath);
   try {
+    const cj = new CookieJar(config.wechatLogin.cookiePath);
     await cj.load();
     return cj;
   }
