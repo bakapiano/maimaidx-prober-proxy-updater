@@ -5,7 +5,7 @@ import { loadCookie } from "./wechat.js";
 const fetch = async (cj, url, options, retry = 1) => {
   const result = await fetchWithCookieWithRetry(cj, url, options);
   if (result.url.indexOf("error") != -1 || (await testCookieExpired(cj))) {
-    if (retry === 3) {
+    if (retry === 4) {
       throw new Error("Cookie expired");
     }
 
@@ -14,14 +14,14 @@ const fetch = async (cj, url, options, retry = 1) => {
     );
     return await new Promise((resolve, reject) => {
       setTimeout(() => {
-        cj.load()
-          .then(() => {
-            fetch(cj, url, options, retry + 1)
+        loadCookie()
+          .then((new_cj) => {
+            fetch(new_cj, url, options, retry + 1)
               .then(resolve)
               .catch(reject);
           })
           .catch(reject);
-      }, 1000 * 45);
+      }, 1000 * 30);
     });
   }
 
