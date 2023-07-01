@@ -173,7 +173,7 @@ if (config.bot.enable)
             console.log(friendCode, data);
             if (!data) {
               // 清理已经完成的好友
-              removeFriend(cj, friendCode);
+              removeFriend(cj, friendCode).catch();
               return resolve();
             }
 
