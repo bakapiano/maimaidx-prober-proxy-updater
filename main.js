@@ -139,7 +139,7 @@ if (config.bot.enable)
               log: `玩家不存在，请检查好友代码！`,
               status: "failed",
             });
-            await delValue(cj, friendCode);
+            await delValue(friendCode);
             return;
           }
 
@@ -189,7 +189,7 @@ if (config.bot.enable)
                   log: `更新时间过长，请重试`,
                   status: "failed",
                 });
-                await delValue(cj, friendCode);
+                await delValue(friendCode);
               }
               return resolve();
             }
@@ -281,7 +281,7 @@ if (config.bot.enable)
                 true
               );
             } finally {
-              await delValue(cj, friendCode);
+              await delValue(friendCode);
             }
           });
 
