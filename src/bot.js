@@ -22,15 +22,17 @@ const fetch = async (cj, url, options, retry = 1) => {
   }
 
   const old = await loadCookie();
-  if (
-    cj.cookies?.get("maimai.wahlap.com")?.get("_t")?.value !==
-      old.cookies?.get("maimai.wahlap.com")?.get("_t")?.value ||
-    cj.cookies?.get("maimai.wahlap.com")?.get("userId")?.value !==
-      old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value
-  ) {
-    console.log("Cookies changes", cj.cookies, old.cookies)
-    await cj.save();
-  }
+  if (old.cookies?.get("maimai.wahlap.com")?.get("_t")?.value !== undefined && old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value !== undefined) {
+    if (
+      cj.cookies?.get("maimai.wahlap.com")?.get("_t")?.value !==
+        old.cookies?.get("maimai.wahlap.com")?.get("_t")?.value ||
+      cj.cookies?.get("maimai.wahlap.com")?.get("userId")?.value !==
+        old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value
+    ) {
+      console.log("Cookies changes", cj.cookies, old.cookies)
+      await cj.save();
+    }
+  } 
   return result;
 };
 
