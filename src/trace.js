@@ -72,7 +72,7 @@ function useTrace(uuid) {
 
 function useStage(trace) {
   let failed = false;
-  return async (description, progress, func) => {
+  return async (description, progress, func, noRetry) => {
     await trace({ log: `开始${description}...` });
     for (let i = 0; i < config.stageRetryCount; i++) {
       try {
@@ -81,7 +81,7 @@ function useStage(trace) {
       } catch (error) {
         if (failed) throw error;
 
-        if (i === config.stageRetryCount - 1) {
+        if (i === config.stageRetryCount - 1 || noRetry === true) {
           failed = true;
           await trace({
             log: `${description}时候出现错误: ${String(error)}`,

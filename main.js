@@ -26,14 +26,14 @@ import { CookieJar } from "node-fetch-cookies";
 import config from "./config.js";
 import fetch from "node-fetch";
 import fs from "fs";
-import { interProxy } from "./src/inter-proxy.js"
+import { interProxy } from "./src/inter-proxy.js";
 import { proxy } from "./src/proxy.js";
 import schedule from "node-schedule";
 import { server } from "./src/server.js";
 
 if (config.interProxy.enable) {
-  interProxy.listen(config.interProxy.port)
-  interProxy.on("error", (error) => console.log(`Inter proxy error ${error}`))
+  interProxy.listen(config.interProxy.port);
+  interProxy.on("error", (error) => console.log(`Inter proxy error ${error}`));
   console.log(`Inter proxy server listen on ${config.interProxy.port}`);
 }
 
@@ -129,37 +129,38 @@ if (config.bot.enable)
             log: `好友请求发送成功！请同意好友请求来继续`,
             progress: 10,
           });
-          await setValue(friendCode, { ...data, status: "sent"});
+          await setValue(friendCode, { ...data, status: "sent" });
           continue;
         }
 
-        validateFriendCode(cj, friendCode).then(async (result)=>{
+        validateFriendCode(cj, friendCode).then(async (result) => {
           if (!result) {
             await trace({
               log: `玩家不存在，请检查好友代码！`,
               status: "failed",
             });
             await delValue(cj, friendCode);
-            return
+            return;
           }
-          
+
           sendFriendRequest(cj, friendCode)
-          .then(async () => {
-            const requests = await getSentRequests(cj);
-            if (!(friendCode in requests)) appendQueue(data); // TODO: skip freiend code validation next try
-            else {
-              await setValue(friendCode, { ...data, status: "sent"});
-              await trace({
-                log: `好友请求发送成功！请同意好友请求来继续`,
-                progress: 10,
-              });
-            }
-          })
-          .catch((err) => {
-            console.log(err)
-            appendQueue(data)
-          });
-        })
+            .then(async () => {
+              const requests = await getSentRequests(cj);
+              if (!(friendCode in requests)) appendQueue(data);
+              // TODO: skip freiend code validation next try
+              else {
+                await setValue(friendCode, { ...data, status: "sent" });
+                await trace({
+                  log: `好友请求发送成功！请同意好友请求来继续`,
+                  progress: 10,
+                });
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              appendQueue(data);
+            });
+        });
       }
 
       // Get friend list
@@ -181,9 +182,9 @@ if (config.bot.enable)
             const stage = useStage(trace);
 
             if (status === "running") {
-              const { time } = data
-              const delta = new Date().getTime() - time
-              if (delta > 1000 * 60 * 15) {
+              const { time } = data;
+              const delta = new Date().getTime() - time;
+              if (delta > 1000 * 60 * 20) {
                 await trace({
                   log: `更新时间过长，请重试`,
                   status: "failed",
@@ -197,52 +198,93 @@ if (config.bot.enable)
               log: `已成功添加好友！`,
               progress: 10,
             });
-            await setValue(friendCode, { ...data, status: "running", time: new Date().getTime()});
+            await setValue(friendCode, {
+              ...data,
+              status: "running",
+              time: new Date().getTime(),
+            });
             resolve();
 
-            const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"];
-            await favoriteOnFriend(cj, friendCode);
-            await Promise.all(
-              [0, 1, 2, 3, 4].map(async (diff) => stage(`更新 ${descriptions[diff]} 难度数据`, 16, async () => {
-                let v1 = undefined
-                let v2 = undefined
-                await stage(`获取 ${descriptions[diff]} 难度友人对战数据`, 0, async () => {
-                  await Promise.all([
-                    getFriendVS(cj, friendCode, 1, diff).then(result => v1 = result),
-                    getFriendVS(cj, friendCode, 2, diff).then(result => v2 = result),
-                  ])
-                })
+            try {
+              await stage(
+                "更新数据",
+                0,
+                async () => {
+                  const descriptions = [
+                    "Basic",
+                    "Advanced",
+                    "Expert",
+                    "Master",
+                    "Re:Master",
+                  ];
+                  await favoriteOnFriend(cj, friendCode);
 
-                v1 = v1
-                  .match(/<html.*>([\s\S]*)<\/html>/)[1]
-                  .replace(/\s+/g, " ");
-                v2 = v2
-                  .match(/<html.*>([\s\S]*)<\/html>/)[1]
-                  .replace(/\s+/g, " ");
-                const url = `${config.pageParserHost}/page/friendVS`;
+                  // Update data
+                  await Promise.all(
+                    [0, 1, 2, 3, 4].map(async (diff) =>
+                      stage(
+                        `更新 ${descriptions[diff]} 难度数据`,
+                        16,
+                        async () => {
+                          let v1 = undefined;
+                          let v2 = undefined;
+                          await stage(
+                            `获取 ${descriptions[diff]} 难度友人对战数据`,
+                            0,
+                            async () => {
+                              await Promise.all([
+                                getFriendVS(cj, friendCode, 1, diff).then(
+                                  (result) => (v1 = result)
+                                ),
+                                getFriendVS(cj, friendCode, 2, diff).then(
+                                  (result) => (v2 = result)
+                                ),
+                              ]);
+                            }
+                          );
+                          v1 = v1
+                            .match(/<html.*>([\s\S]*)<\/html>/)[1]
+                            .replace(/\s+/g, " ");
+                          v2 = v2
+                            .match(/<html.*>([\s\S]*)<\/html>/)[1]
+                            .replace(/\s+/g, " ");
+                          await stage(
+                            `上传 ${descriptions[diff]} 难度数据`,
+                            0,
+                            async () => {
+                              const url = `${config.pageParserHost}/page/friendVS`;
+                              const uploadResult = await fetch(url, {
+                                method: "POST",
+                                headers: { "content-type": "text/plain" },
+                                body: `<login><u>${username}</u><p>${password}</p></login><dxscorevs>${v1}</dxscorevs><achievementsvs>${v2}</achievementsvs>`,
+                              });
+                              console.log(descriptions[diff], uploadResult);
 
-                const uploadResult = await fetch(url, {
-                  method: "POST",
-                  headers: { "content-type": "text/plain" },
-                  body: `<login><u>${username}</u><p>${password}</p></login><dxscorevs>${v1}</dxscorevs><achievementsvs>${v2}</achievementsvs>`,
-                });
-                console.log(descriptions[diff], uploadResult);
-
-                const log = `diving-fish 上传 ${
-                  descriptions[diff]
-                } 分数接口返回消息: ${await uploadResult.text()}`;
-                await trace({log});
-              }))
-            );
-            
-            await favoriteOffFriend(cj, friendCode);
-            await removeFriend(cj, friendCode);
-            await delValue(cj, friendCode);
-            await trace({
-              log: `maimai 数据更新完成`,
-              status: "success",
-            });
+                              const log = `diving-fish 上传 ${
+                                descriptions[diff]
+                              } 分数接口返回消息: ${await uploadResult.text()}`;
+                              await trace({ log });
+                            }
+                          );
+                        },
+                        true
+                      )
+                    )
+                  );
+                  await trace({
+                    log: `maimai 数据更新完成`,
+                    status: "success",
+                  });
+                  await favoriteOffFriend(cj, friendCode);
+                  await removeFriend(cj, friendCode);
+                },
+                true
+              );
+            } finally {
+              await delValue(cj, friendCode);
+            }
           });
+
         await work();
       }
     })

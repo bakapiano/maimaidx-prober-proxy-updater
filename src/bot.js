@@ -21,7 +21,7 @@ const fetch = async (cj, url, options, retry = 1) => {
               .catch(reject);
           })
           .catch(reject);
-      }, 1000 * 10);
+      }, 1000 * 45);
     });
   }
 
