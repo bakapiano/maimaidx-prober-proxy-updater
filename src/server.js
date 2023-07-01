@@ -3,6 +3,7 @@ import {
   getAuthUrl,
   verifyProberAccount,
 } from "./crawler.js";
+import { getTrace, useTrace } from "./trace.js";
 
 import bodyParser from "body-parser";
 import config from "../config.js";
@@ -11,7 +12,6 @@ import { exec } from "child_process";
 import express from "express";
 import fs from "fs";
 import { v4 as genUUID } from "uuid"
-import { getTrace } from "./trace.js";
 import url from "url";
 
 const app = express();
@@ -157,7 +157,22 @@ if (config.bot.enable) {
     const traceUUID = genUUID();
     appendQueue({ username, password, friendCode, traceUUID });
     
-    res.status(200).send(traceUUID);
+    const protocol = config.dev ? "http" : "https"
+    const tracePageUrl = `${protocol}://${config.host}/#/trace/${traceUUID}/`
+
+    const trace = useTrace(traceUUID);
+
+    await trace({
+      log: "已加入等待队列中，请稍后...",
+      status: "running",
+      progress: 0,
+    });
+
+    const redirect = false
+    
+    redirect === true
+      ? res.redirect(tracePageUrl)
+      : res.status(200).send(tracePageUrl);
   })
 }
 

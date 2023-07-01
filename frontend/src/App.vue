@@ -163,6 +163,20 @@ const menuOptions = [
         RouterLink,
         {
           to: {
+            path: '/bot/',
+          },
+        },
+        { default: () => 'Bot 更新' }
+      ),
+    key: 'bot',
+    to: '/bot',
+  },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
             path: '/score/',
           },
         },
@@ -177,7 +191,8 @@ const menuOptions = [
         RouterLink,
         {
           onClick: () => {
-            window.location.href = 'https://www.diving-fish.com/maimaidx/prober/'
+            window.location.href =
+              'https://www.diving-fish.com/maimaidx/prober/'
           },
           to: {
             path: '/',
@@ -188,20 +203,6 @@ const menuOptions = [
     key: 'diving-fish',
     // to: 'https://www.diving-fish.com/maimaidx/prober/',
   },
-  // {
-  //   label: () =>
-  //     h(
-  //       RouterLink,
-  //       {
-  //         to: {
-  //           path: '/bot/',
-  //         },
-  //       },
-  //       { default: () => 'bot' }
-  //     ),
-  //   key: 'bot',
-  //   to: '/bot',
-  // },
 ]
 </script>
 

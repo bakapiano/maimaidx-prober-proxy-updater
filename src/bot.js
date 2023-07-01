@@ -163,17 +163,25 @@ const sendFriendRequest = async (cj, friendCode) => {
   // console.log(result2);
 };
 
-const updateScoreByVsPage = async (cj, friendCode, username, password) => {};
+const validateFriendCode = async (cj, friendCode) => {
+  const result = await fetch (
+    cj,
+    `https://maimai.wahlap.com/maimai-mobile/friend/search/searchUser/?friendCode=${friendCode}`
+  );
+  const body = await result.text();
+  const validateResult = body.indexOf("找不到该玩家") === -1;
+  return validateResult
+}
 
 export {
   getFriendList,
   removeFriend,
   sendFriendRequest,
-  updateScoreByVsPage,
   cancelFriendRequest,
   getSentRequests,
   testCookieExpired,
   favoriteOffFriend,
   favoriteOnFriend,
   getFriendVS,
+  validateFriendCode,
 };

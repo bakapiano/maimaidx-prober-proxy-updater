@@ -1,5 +1,5 @@
 const config = {
-  host: "maibot.bakapiano.com",
+  host: "maimai.bakapiano.com",
   dev: false,
   fetchTimeOut: 60 * 3 * 1000,
   fetchRetryCount: 3,

@@ -158,10 +158,6 @@ function isNew(record) {
 }
 
 function getB35(playerData) {
-  // console.log(playerData.records)
-  // console.log(
-  // playerData.records.reduce((total, record) => total + Number(record.ra), 0)
-  // )
   if (playerData === null) return []
   return playerData.records
     .filter((record) => !isNew(record))

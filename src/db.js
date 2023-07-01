@@ -47,7 +47,7 @@ async function clearExpireData() {
   Object.keys(memoDB.data.time).forEach(async (key) => {
     const current = new Date().getTime();
     const delta = current - memoDB.data.time[key];
-    if (delta >= 1000 * 60 * 60 * 30) {
+    if (delta >= 1000 * 60 * 60 * 24) {
       await delValue(key);
     }
   });

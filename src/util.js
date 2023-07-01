@@ -10,7 +10,7 @@ async function fetchWithCookieWithRetry(cj, url, options) {
       const contoller = new AbortController();
       const timeout = setTimeout(() => {
         contoller.abort();
-      }, 666 * 1000);
+      }, config.fetchTimeOut);
       const result = await fetch(cj, url, {
         signal: contoller.signal,
         agent: function (_parsedURL) {
