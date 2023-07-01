@@ -191,7 +191,7 @@ if (config.bot.enable)
             const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"];
             await favoriteOnFriend(cj, friendCode);
             await Promise.all(
-              [0, 1, 2, 3, 4].map(stage(`更新 ${descriptions[diff]} 难度数据`, 16, async (diff) => {
+              [0, 1, 2, 3, 4].map(async (diff) => stage(`更新 ${descriptions[diff]} 难度数据`, 16, async () => {
                 let v1 = undefined
                 let v2 = undefined
                 await stage(`获取 ${descriptions[diff]} 难度友人对战数据`, 0, async () => {
