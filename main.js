@@ -160,6 +160,9 @@ if (config.bot.enable)
               console.log(err);
               appendQueue(data);
             });
+        }).catch((err) => {
+          console.log(err);
+          appendQueue(data);
         });
       }
 
@@ -275,7 +278,7 @@ if (config.bot.enable)
                     log: `maimai 数据更新完成`,
                     status: "success",
                   });
-                  await favoriteOffFriend(cj, friendCode);
+                  // await favoriteOffFriend(cj, friendCode);
                   await removeFriend(cj, friendCode);
                 },
                 true
