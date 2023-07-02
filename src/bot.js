@@ -4,7 +4,7 @@ import { loadCookie } from "./wechat.js";
 
 const fetch = async (cj, url, options, retry = 1) => {
   const result = await fetchWithCookieWithRetry(cj, url, options);
-  if (result.url.indexOf("error") != -1 || (await testCookieExpired(cj))) {
+  if ((result.url.indexOf("error") != -1 && (await result.text()).indexOf("错误码：200002") !== -1) || (await testCookieExpired(cj))) {
     if (retry === 10) {
       throw new Error("Cookie expired");
     }
@@ -51,7 +51,7 @@ const testCookieExpired = async (cj) => {
     "https://maimai.wahlap.com/maimai-mobile/home/"
   );
   const body = await result.text();
-  console.log(body.indexOf("登录失败") !== -1);
+  // console.log(body.indexOf("登录失败") !== -1);
   return body.indexOf("登录失败") !== -1;
 };
 
@@ -69,7 +69,7 @@ const cancelFriendRequest = async (cj, friendCode) => {
       method: "POST",
     }
   );
-  cj.save(config.wechatLogin.cookiePath);
+  // cj.save(config.wechatLogin.cookiePath);
   // console.log(result);
 };
 
@@ -81,7 +81,7 @@ const getSentRequests = async (cj) => {
   const text = await result.text();
   const t = text.matchAll(/<input type="hidden" name="idx" value="(.*?)"/g);
   const ids = [...t].map((x) => x[1]);
-  console.log(ids);
+  // console.log(ids);
   return ids;
 };
 
@@ -130,7 +130,7 @@ const getFriendList = async (cj) => {
   const t = text.matchAll(/<input type="hidden" name="idx" value="(.*?)"/g);
   const ids = [...new Set([...t].map((x) => x[1]))];
   // console.log(result);
-  console.log(ids);
+  // console.log(ids);
   return ids;
 };
 

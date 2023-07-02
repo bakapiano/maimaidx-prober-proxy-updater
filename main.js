@@ -75,7 +75,8 @@ function single(func) {
     lock = true;
     const lockTimeout = setTimeout(() => {
       lock = false;
-    }, 1000 * 60 * 5);
+      console.log("Cacncel lock")
+    }, 1000 * 60 * 10);
     try {
       await func();
     } catch (err) {
@@ -110,7 +111,7 @@ if (config.bot.enable)
   schedule.scheduleJob(
     botCookieRefresher,
     cookieSingle(async () => {
-      console.log("Cookie refresher wake up");
+      console.log("[CookieRefresher] Cookie refresher wake up");
       let cj = null;
       let failed = true;
 
@@ -120,6 +121,7 @@ if (config.bot.enable)
           failed = false;
           break;
         } else {
+          console.log(`[CookieRefresher] ${i} time test failed`);
           await new Promise((r) => {
             setTimeout(r, 1000 * 10);
           });
@@ -127,8 +129,12 @@ if (config.bot.enable)
       }
 
       if (failed) {
+        console.log("[CookieRefresher] Cookie expired, refresh...");
         await refreshCookie();
         cj = await loadCookie();
+      }
+      else {
+        console.log("[CookieRefresher] Cookie good");
       }
     })
   );
@@ -137,17 +143,47 @@ if (config.bot.enable)
   schedule.scheduleJob(
     botRule,
     single(async () => {
-      console.log("Bot wake up");
+      console.log("[Bot] Bot wake up");
 
       let cj = null;
       cj = await loadCookie();
 
       const requests = await getSentRequests(cj);
       const friends = await getFriendList(cj);
+
+      console.log("[Bot] Pending requests: ", requests);
+      console.log("[Bot] Friends: ", friends);
+
+      // Clear pending requests 
+      for (const friendCode of requests) {
+        const data = await getValue(friendCode);
+        if (!data) {
+          console.log("[Bot] Cancel friend request: ", friendCode)
+          await cancelFriendRequest(cj, friendCode);
+        }
+        else {
+          const { time, traceUUID } = data;
+          const trace = useTrace(traceUUID);
+          const delta = new Date().getTime() - time;
+          if (delta > 1000 * 60 * 5) {
+            await trace({
+              log: `长时间未接受好友请求，请重试`,
+              status: "failed",
+            });
+            await delValue(friendCode);
+            console.log("[Bot] Cancel friend request: ", friendCode)
+            await cancelFriendRequest(cj, friendCode);
+          }
+        }
+      }
+
+      const appendBack = []
       // Pop up queue to send friendRequest
       while (true) {
         const data = popQueue();
         if (!data) break;
+
+        console.log("[Bot] Processing queue front data:", data);
 
         const { friendCode, traceUUID } = data;
         const trace = useTrace(traceUUID);
@@ -157,10 +193,17 @@ if (config.bot.enable)
           friends.indexOf(friendCode) !== -1
         ) {
           await trace({
-            log: `好友请求发送成功！请同意好友请求来继续`,
+            log: `好友请求发送成功！请在5分钟内同意好友请求来继续`,
+            time: new Date().getTime(),
             progress: 10,
           });
           await setValue(friendCode, { ...data, status: "sent" });
+          continue;
+        }
+
+        if (requests.length >= 10 || friends.length >= 20) {
+          await trace({log: `bot好友数量已达上限，请稍后...`});
+          appendBack.push(data)
           continue;
         }
 
@@ -183,7 +226,8 @@ if (config.bot.enable)
                 else {
                   await setValue(friendCode, { ...data, status: "sent" });
                   await trace({
-                    log: `好友请求发送成功！请同意好友请求来继续`,
+                    log: `好友请求发送成功！请在5分钟内同意好友请求来继续`,
+                    time: new Date().getTime(),
                     progress: 10,
                   });
                 }
@@ -197,6 +241,10 @@ if (config.bot.enable)
             console.log(err);
             appendQueue(data);
           });
+      }
+
+      for (const data of appendBack) {
+        await appendQueue(data)
       }
 
       // Get friend list
@@ -226,6 +274,7 @@ if (config.bot.enable)
                   status: "failed",
                 });
                 await delValue(friendCode);
+                removeFriend(cj, friendCode).catch();
               }
               return resolve();
             }
