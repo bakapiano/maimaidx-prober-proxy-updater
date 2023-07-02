@@ -74,11 +74,15 @@ function single(func) {
     if (lock) return;
     lock = true;
     try {
+      const lockTimeout = setTimeout(() => {
+        lock = false;
+      }, 1000 * 60 * 5);
       await func();
     } catch (err) {
       console.log(err);
     } finally {
       lock = false;
+      clearTimeout(lockTimeout);
     }
   };
 }
