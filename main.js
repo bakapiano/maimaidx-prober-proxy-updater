@@ -73,10 +73,10 @@ function single(func) {
   return async () => {
     if (lock) return;
     lock = true;
+    const lockTimeout = setTimeout(() => {
+      lock = false;
+    }, 1000 * 60 * 5);
     try {
-      const lockTimeout = setTimeout(() => {
-        lock = false;
-      }, 1000 * 60 * 5);
       await func();
     } catch (err) {
       console.log(err);
