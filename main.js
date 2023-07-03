@@ -224,6 +224,7 @@ if (config.bot.enable)
                 if (!(friendCode in requests)) appendQueue(data);
                 // TODO: skip freiend code validation next try
                 else {
+                  // BUG: Can't hit this path
                   await setValue(friendCode, { ...data, status: "sent", time: new Date().getTime(),});
                   await trace({
                     log: `好友请求发送成功！请在5分钟内同意好友请求来继续`,
