@@ -2,9 +2,16 @@ import config from "../config.js";
 import { fetchWithCookieWithRetry } from "./util.js";
 import { loadCookie } from "./wechat.js";
 
+const getCookieValue = (cj) => {
+  return [
+    cj.cookies?.get("maimai.wahlap.com")?.get("_t")?.value,
+    cj.cookies?.get("maimai.wahlap.com")?.get("userId")?.value,
+  ]
+}
+
 const fetch = async (cj, url, options, retry = 1) => {
   const result = await fetchWithCookieWithRetry(cj, url, options);
-  if ((result.url.indexOf("error") != -1 && (await result.text()).indexOf("错误码：200002") !== -1) || (await testCookieExpired(cj))) {
+  if ((result.url.indexOf("error") !== -1 && (await result.text()).indexOf("错误码：200002") !== -1) || (await testCookieExpired(cj))) {
     if (retry === 10) {
       throw new Error("Cookie expired");
     }
@@ -12,6 +19,9 @@ const fetch = async (cj, url, options, retry = 1) => {
     console.log(
       `Cookie expired, try to reload cookie from local, retry time: ${retry}`
     );
+    console.log(
+      "Cookie value:", getCookieValue(cj)
+    )
     return await new Promise((resolve, reject) => {
       setTimeout(async () => {
         try {
@@ -38,8 +48,10 @@ const fetch = async (cj, url, options, retry = 1) => {
           old.cookies?.get("maimai.wahlap.com")?.get("userId")?.value) &&
       !(await testCookieExpired(cj))
     ) {
-      console.log("Cookies changes", cj.cookies, old.cookies);
-      await cj.save();
+      console.log("Cookies changes", getCookieValue(cj), getCookieValue(old));
+      cj.cookies.get("maimai.wahlap.com").get("userId").expiry = (new Date()).setFullYear(2099)
+      cj.cookies.get("maimai.wahlap.com").get("_t").expiry = (new Date()).setFullYear(2099)
+      await cj.save(config.wechatLogin.cookiePath)
     }
   }
   return result;

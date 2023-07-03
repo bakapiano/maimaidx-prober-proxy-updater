@@ -158,7 +158,7 @@ if (config.bot.enable)
       for (const friendCode of requests) {
         const data = await getValue(friendCode);
         if (!data) {
-          console.log("[Bot] Cancel friend request: ", friendCode)
+          console.log("[Bot] Cancel friend request by not found data: ", friendCode)
           await cancelFriendRequest(cj, friendCode);
         }
         else {
@@ -171,7 +171,7 @@ if (config.bot.enable)
               status: "failed",
             });
             await delValue(friendCode);
-            console.log("[Bot] Cancel friend request: ", friendCode)
+            console.log("[Bot] Cancel friend request by timeout: ", friendCode)
             await cancelFriendRequest(cj, friendCode);
           }
         }
@@ -194,10 +194,9 @@ if (config.bot.enable)
         ) {
           await trace({
             log: `好友请求发送成功！请在5分钟内同意好友请求来继续`,
-            time: new Date().getTime(),
             progress: 10,
           });
-          await setValue(friendCode, { ...data, status: "sent" });
+          await setValue(friendCode, { ...data, status: "sent", time: new Date().getTime(),});
           continue;
         }
 
@@ -218,23 +217,24 @@ if (config.bot.enable)
               return;
             }
 
+            await setValue(friendCode, { ...data, status: "sent", time: new Date().getTime(),});
             sendFriendRequest(cj, friendCode)
               .then(async () => {
                 const requests = await getSentRequests(cj);
                 if (!(friendCode in requests)) appendQueue(data);
                 // TODO: skip freiend code validation next try
                 else {
-                  await setValue(friendCode, { ...data, status: "sent" });
+                  await setValue(friendCode, { ...data, status: "sent", time: new Date().getTime(),});
                   await trace({
                     log: `好友请求发送成功！请在5分钟内同意好友请求来继续`,
-                    time: new Date().getTime(),
                     progress: 10,
                   });
                 }
               })
-              .catch((err) => {
+              .catch(async (err) => {
                 console.log(err);
                 appendQueue(data);
+                await delValue(friendCode)
               });
           })
           .catch((err) => {
