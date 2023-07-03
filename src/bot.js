@@ -10,6 +10,7 @@ const getCookieValue = (cj) => {
 }
 
 const fetch = async (cj, url, options, retry = 1) => {
+  cj = await loadCookie();
   const result = await fetchWithCookieWithRetry(cj, url, options);
   if ((result.url.indexOf("error") !== -1 && (await result.text()).indexOf("错误码：200002") !== -1) || (await testCookieExpired(cj))) {
     if (retry === 10) {
@@ -24,14 +25,9 @@ const fetch = async (cj, url, options, retry = 1) => {
     )
     return await new Promise((resolve, reject) => {
       setTimeout(async () => {
-        try {
-          await cj.load();
-        } catch (_err) {
-        } finally {
-          await fetch(cj, url, options, retry + 1)
-            .then(resolve)
-            .catch(reject);
-        }
+        await fetch(cj, url, options, retry + 1)
+          .then(resolve)
+          .catch(reject);
       }, 1000 * 30);
     });
   }
