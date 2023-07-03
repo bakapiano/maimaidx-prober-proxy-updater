@@ -343,7 +343,6 @@ if (config.bot.enable)
                                 headers: { "content-type": "text/plain" },
                                 body: `<login><u>${username}</u><p>${password}</p></login><dxscorevs>${v1}</dxscorevs><achievementsvs>${v2}</achievementsvs>`,
                               });
-                              console.log(descriptions[diff], uploadResult);
 
                               const log = `diving-fish 上传 ${
                                 descriptions[diff]

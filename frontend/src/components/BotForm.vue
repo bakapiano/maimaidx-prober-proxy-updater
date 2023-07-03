@@ -5,7 +5,7 @@
         <n-form-item path="username" label="查分器账号">
           <n-input v-model:value="formValue.username" placeholder="username" />
         </n-form-item>
-        <n-form-item path="password" label="查分器账号">
+        <n-form-item path="password" label="查分器密码">
           <n-input
             v-model:value="formValue.password"
             placeholder="password"

@@ -12,6 +12,7 @@ const getCookieValue = (cj) => {
 const fetch = async (cj, url, options, retry = 1) => {
   cj = await loadCookie();
   const result = await fetchWithCookieWithRetry(cj, url, options);
+  const resultToReturn = result.clone();
   if ((result.url.indexOf("error") !== -1 && (await result.text()).indexOf("错误码：200002") !== -1) || (await testCookieExpired(cj))) {
     if (retry === 10) {
       throw new Error("Cookie expired");
@@ -50,7 +51,7 @@ const fetch = async (cj, url, options, retry = 1) => {
       await cj.save(config.wechatLogin.cookiePath)
     }
   }
-  return result;
+  return resultToReturn;
 };
 
 const testCookieExpired = async (cj) => {
