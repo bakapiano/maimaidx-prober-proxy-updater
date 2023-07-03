@@ -13,13 +13,22 @@ const fetch = async (cj, url, options, retry = 1) => {
   cj = await loadCookie();
   const result = await fetchWithCookieWithRetry(cj, url, options);
   const resultToReturn = result.clone();
-  if ((result.url.indexOf("error") !== -1 && (await result.text()).indexOf("错误码：200002") !== -1) || (await testCookieExpired(cj))) {
+  if (result.url.indexOf("error") !== -1 || (await testCookieExpired(cj))) {
     if (retry === 10) {
-      throw new Error("Cookie expired");
+      throw new Error("Retry hit max limit.");
+    }
+
+    if (result.url.indexOf("error") !== -1) {
+      const text = await result.text();
+      const errroCode = text.match(/<div class="p_5 f_14 ">(.*)<\/div>/)[1]
+      const errorBody = text.match(/<div class="p_5 f_12 gray break">(.*)<\/div>/)[1]
+      console.log("Error url:", result.url)
+      console.log("Error code:", errroCode)
+      console.log("Error body:", errorBody)
     }
 
     console.log(
-      `Cookie expired, try to reload cookie from local, retry time: ${retry}`
+      `Fetch error, try to reload cookie and retry. Retry time: ${retry}`
     );
     console.log(
       "Cookie value:", getCookieValue(cj)
