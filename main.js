@@ -312,6 +312,9 @@ if (config.bot.enable)
                         `更新 ${descriptions[diff]} 难度数据`,
                         16,
                         async () => {
+                          // Sleep random time to avoid ban
+                          await new Promise((r) => setTimeout(r, 1000 * (diff + 1) * 2 + 1000 * 5 * Math.random()));
+
                           let v1 = undefined;
                           let v2 = undefined;
                           await stage(
