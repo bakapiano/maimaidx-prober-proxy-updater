@@ -7,7 +7,7 @@ async function postForm(username, password, type, allDiff) {
     password,
     callbackHost,
     type,
-    allDiff,
+    diffList,
   })
   return result
 }
