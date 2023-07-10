@@ -86,7 +86,7 @@ function single(func) {
     const lockTimeout = setTimeout(() => {
       lock = false;
       console.log("Cacncel lock")
-    }, 1000 * 60 * 6);
+    }, 1000 * 60 * 3);
     try {
       await func();
     } catch (err) {
@@ -185,6 +185,7 @@ if (config.bot.enable)
 
       const appendBack = []
       // Pop up queue to send friendRequest
+      let count = Math.max(0, Math.min(20 - friends.length, 10 - requests.length))
       while (true) {
         const data = popQueue();
         if (!data) break;
@@ -206,12 +207,13 @@ if (config.bot.enable)
           continue;
         }
 
-        if (requests.length >= 10 || friends.length >= 20) {
+        if (requests.length >= 10 || friends.length >= 20 || count === 0) {
           await trace({log: `bot好友数量已达上限，请稍后...`});
           appendBack.push(data)
           continue;
         }
 
+        count -= 1
         validateFriendCode(cj, friendCode)
           .then(async (result) => {
             if (!result) {
