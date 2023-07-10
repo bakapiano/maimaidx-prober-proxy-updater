@@ -140,8 +140,11 @@ const updateMaimaiScore = async (
           return;
         }
         
+        // Sleep random time to avoid ban
+        await new Promise((r) => setTimeout(r, 1000 * (diff + 1) * 2 + 1000 * 5 * Math.random()));
+        
         let body = undefined;
-
+        
         await stage(`获取 ${name} 分数`, progress, async () => {
           const result = await fetch(
             `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${diff}`
@@ -279,6 +282,9 @@ const updateChunithmScore = async (
           });
           return;
         }
+
+        // Sleep random time to avoid ban
+        await new Promise((r) => setTimeout(r, 1000 * (diff + 1) * 2 + 1000 * 5 * Math.random()));
 
         let resultHtml = undefined;
 
