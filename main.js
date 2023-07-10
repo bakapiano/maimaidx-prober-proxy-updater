@@ -31,6 +31,16 @@ import { proxy } from "./src/proxy.js";
 import schedule from "node-schedule";
 import { server } from "./src/server.js";
 
+// Print time for console.log
+console.log = (function () {
+  const orig = console.log;
+  return function () {
+    const args = Array.from(arguments);
+    args.unshift(`[${new Date().toLocaleString()}]`);
+    orig.apply(null, args);
+  };
+})();
+
 if (config.interProxy.enable) {
   interProxy.listen(config.interProxy.port);
   interProxy.on("error", (error) => console.log(`Inter proxy error ${error}`));
@@ -76,7 +86,7 @@ function single(func) {
     const lockTimeout = setTimeout(() => {
       lock = false;
       console.log("Cacncel lock")
-    }, 1000 * 60 * 10);
+    }, 1000 * 60 * 6);
     try {
       await func();
     } catch (err) {
@@ -89,10 +99,7 @@ function single(func) {
 }
 
 const botCookieRefresher = new schedule.RecurrenceRule();
-botCookieRefresher.minute = [];
-for (let min = 0; min < 60; min += 1) {
-  botCookieRefresher.minute.push(min);
-}
+botCookieRefresher.second = [0, 10, 20, 30, 40, 50];
 var cookieLock = false;
 function cookieSingle(func) {
   return async () => {
@@ -159,7 +166,7 @@ if (config.bot.enable)
         const data = await getValue(friendCode);
         if (!data) {
           console.log("[Bot] Cancel friend request by not found data: ", friendCode)
-          await cancelFriendRequest(cj, friendCode);
+          cancelFriendRequest(cj, friendCode).catch();
         }
         else {
           const { time, traceUUID } = data;
@@ -170,9 +177,8 @@ if (config.bot.enable)
               log: `长时间未接受好友请求，请重试`,
               status: "failed",
             });
-            await delValue(friendCode);
             console.log("[Bot] Cancel friend request by timeout: ", friendCode)
-            await cancelFriendRequest(cj, friendCode);
+            cancelFriendRequest(cj, friendCode).catch().finally(() => delValue(friendCode));
           }
         }
       }
