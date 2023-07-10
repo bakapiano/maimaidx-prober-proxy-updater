@@ -69,7 +69,7 @@ const updateMaimaiScore = async (
   password,
   authUrl,
   traceUUID,
-  allDiff,
+  diffList,
   logCreatedCallback
 ) => {
   try {
@@ -119,24 +119,24 @@ const updateMaimaiScore = async (
     }, true);
 
     const descriptions = ["Basic", "Advanced", "Expert", "Master", "Re:Master"];
+    const diffMap = {
+      "basic": 0,
+      "advanced": 1,
+      "expert": 2,
+      "master": 3,
+      "remaster": 4,
+    };
     const tasks = [];
-    for (let diff = 0; diff < 5; diff++) {
+    diffList.forEach(diff => {
+      const i = diffMap[diff];
       const progress = 9;
-      const task = stage(`更新 ${descriptions[diff]} 难度分数`, 0, async () => {
-        if (!allDiff && diff <= 1) {
-          // await setTimeout(() => {}, 1000 * (diff + 1));
-          await trace({
-            log: `难度 ${descriptions[diff]} 更新已跳过`,
-            progress: progress * 2,
-          });
-          return;
-        }
+      const task = stage(`更新 ${descriptions[i]} 难度分数`, 0, async () => {
 
         let body = undefined;
 
-        await stage(`获取 ${descriptions[diff]} 分数`, progress, async () => {
+        await stage(`获取 ${descriptions[i]} 分数`, progress, async () => {
           const result = await fetch(
-            `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${diff}`
+            `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${i}`
           );
           body = (await result.text())
             .match(/<html.*>([\s\S]*)<\/html>/)[1]
@@ -144,7 +144,7 @@ const updateMaimaiScore = async (
         });
 
         await stage(
-          `上传 ${descriptions[diff]} 分数至 diving-fish 查分器数据库`,
+          `上传 ${descriptions[i]} 分数至 diving-fish 查分器数据库`,
           progress,
           async () => {
             const uploadResult = await fetch(`${config.pageParserHost}/page`, {
@@ -154,14 +154,14 @@ const updateMaimaiScore = async (
             });
 
             const log = `diving-fish 上传 ${
-              descriptions[diff]
+              descriptions[i]
             } 分数接口返回消息: ${await uploadResult.text()}`;
             await trace({ log });
           }
         );
       }, true);
       tasks.push(task);
-    }
+    });
 
     await Promise.all(tasks);
 
@@ -180,7 +180,7 @@ const updateChunithmScore = async (
   password,
   authUrl,
   traceUUID,
-  allDiff,
+  diffList,
   logCreatedCallback
 ) => {
   try {
@@ -255,14 +255,24 @@ const updateChunithmScore = async (
       "WorldsEnd",
       "最近游玩",
     ];
+    const diffMap = {
+      "basic": 0,
+      "advanced": 1,
+      "expert": 2,
+      "master": 3,
+      "ultima": 4,
+      "worldsend": 5,
+      "recent": 6,
+    };
 
     const _t = cj.cookies.get("chunithm.wahlap.com").get("_t").value;
 
     const tasks = [];
-    for (let i = 0; i < 7; i++) {
+    diffList.forEach(diff => {
+      const i = diffMap[diff];
       const url = urls[i];
       const task = stage(`更新 ${descriptions[i]} 分数`, 0, async () => {
-        if (!allDiff && i <= 1) {
+        if (diffList[i] == 0) {
           await trace({
             log: `难度 ${descriptions[i]} 更新已跳过`,
             progress: 6.25 * 2,
@@ -310,7 +320,7 @@ const updateChunithmScore = async (
         );
       }, true);
       tasks.push(task);
-    }
+    });
 
     await Promise.all(tasks);
 

@@ -20,22 +20,27 @@ app.use(cors());
 const jsonParser = bodyParser.json({ extended: false });
 
 async function serve(serverReq, serverRes, data, redirect) {
-  let { username, password, callbackHost, type, allDiff } = data;
-  console.log(username, password, callbackHost, type, allDiff);
+  let { username, password, callbackHost, type, diffList } = data;
+  diffList = diffList.split(",");
+  console.log(username, password, callbackHost, type, diffList);
 
   if (!username || !password) {
     serverRes.status(400).send("用户名或密码不能为空！");
     return;
   }
 
-  // Update all diff or not
-  if (allDiff === undefined || allDiff === null) {
-    allDiff = false
-  }
-
   // Update maimai dx by default
   if (!type) {
     type = "maimai-dx";
+  }
+
+  // Update all diff or not
+  if (diffList === undefined || diffList === null) {
+    if (type == "maimai-dx") {
+      diffList = [0, 0, 1, 1, 1];
+    } else {
+      diffList = [0, 0, 1, 1, 1, 1, 1];
+    }
   }
 
   if (!["maimai-dx", "chunithm"].includes(type)) {
@@ -61,7 +66,7 @@ async function serve(serverReq, serverRes, data, redirect) {
   const { redirect_uri } = resultUrl.query;
   const key = url.parse(redirect_uri, true).query.r;
 
-  await setValue(key, { username, password, callbackHost, allDiff });
+  await setValue(key, { username, password, callbackHost, diffList });
   // setTimeout(() => delValue(key), 1000 * 60 * 5);
 
   increaseCount()

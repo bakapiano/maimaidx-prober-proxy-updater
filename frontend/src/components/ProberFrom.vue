@@ -34,12 +34,29 @@
                   placeholder="password"
                 />
               </n-form-item>
-              <n-form-item path="allDiff" label="更新所有难度">
+              <n-form-item path="diffList" label="选择更新难度">
+                <n-checkbox-group v-model:value="formValue.diffList">
+                  <!-- two different series of values for different type value-->
+                  <n-checkbox value="basic">Basic</n-checkbox>
+                  <n-checkbox value="advanced">Advanced</n-checkbox>
+                  <n-checkbox value="expert">Expert</n-checkbox>
+                  <n-checkbox value="master">Master</n-checkbox>
+                  <div v-if="updateType === 'maimai-dx'">
+                    <n-checkbox value="remaster">Re:Master</n-checkbox>
+                  </div>
+                  <div v-else>
+                    <n-checkbox value="ultima">Ultima</n-checkbox>
+                    <n-checkbox value="worldsend">WorldsEnd</n-checkbox>
+                    <n-checkbox value="recent">最近游玩</n-checkbox>
+                  </div>
+                </n-checkbox-group>
+              </n-form-item>
+              <!-- <n-form-item path="allDiff" label="更新所有难度">
                 <n-switch v-model:value="formValue.allDiff">
                   <template #checked>All difficulties</template>
                   <template #unchecked> Expert,Master,Re:Master </template>
                 </n-switch>
-              </n-form-item>
+              </n-form-item> -->
               <n-form-item label="记住账号密码">
                 <n-switch v-model:value="remember" @change="rememberChange" />
               </n-form-item>
@@ -110,6 +127,10 @@ const rules = ref({
     required: true,
     message: '请输入查分器密码',
   },
+  diffList: {
+    required: true,
+    message: '请选择更新难度',
+  },
 })
 const shortCut = ref('')
 const showModal = ref(false)
@@ -164,7 +185,11 @@ async function genShortcut(type) {
   url += `callbackHost=${encodeURIComponent(callbackHost)}`
   url += `&username=${encodeURIComponent(formValue.value.username)}`
   url += `&password=${encodeURIComponent(formValue.value.password)}`
-  url += `&allDiff=${encodeURIComponent(formValue.value.allDiff !== undefined ? formValue.value.allDiff : false)}`
+  url += `&diffList=${encodeURIComponent(
+    formValue.value.diffList !== undefined
+      ? formValue.value.diffList.join()
+      : null
+  )}`
   url += `&type=${encodeURIComponent(type)}`
   console.log(url)
   shortCut.value = url
@@ -177,7 +202,9 @@ async function post(type, jump = true) {
       formValue.value.username,
       formValue.value.password,
       type,
-      formValue.value.allDiff !== undefined ? formValue.value.allDiff : false
+      formValue.value.diffList !== undefined
+        ? formValue.value.diffList.join()
+        : null
     )
     console.log(result.data)
     saveToLocalStorage()
