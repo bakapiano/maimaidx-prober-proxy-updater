@@ -20,7 +20,6 @@ async function verifyProberAccount(username, password) {
     }
   );
   const data = await res.json();
-  console.log(data);
   return data.errcode == undefined;
 }
 
@@ -33,7 +32,6 @@ async function getAuthUrl(type) {
     `https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/${type}`
   );
   const href = res.url.replace("redirect_uri=https", "redirect_uri=http");
-  console.log(href);
   return href;
 }
 
@@ -129,7 +127,6 @@ const updateMaimaiScore = async (
     const tasks = [];
     [0, 1, 2, 3, 4].forEach(diff => {
       const name = diffNameList[diff]
-      console.log(diffList, name)
       const progress = 9;
       const task = stage(`更新 ${name} 难度分数`, 0, async () => {
         if (!diffList.includes(name)) {
