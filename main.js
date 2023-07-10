@@ -84,9 +84,9 @@ function single(func) {
     if (lock) return;
     lock = true;
     const lockTimeout = setTimeout(() => {
-      lock = false;
-      console.log("Cacncel lock")
-    }, 1000 * 60 * 3);
+      lock = false; 
+      console.log("[Bot] Cacncel lock")
+    }, 1000 * 60 * 1);
     try {
       await func();
     } catch (err) {
@@ -389,5 +389,7 @@ if (config.bot.enable)
 
         await work();
       }
+      
+      console.log("[Bot] Bot work done")
     })
   );

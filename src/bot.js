@@ -12,31 +12,36 @@ const getCookieValue = (cj) => {
 var lastFetchTime = 0;
 
 const fetch = async (cj, url, options, retry = 1, fetchTimeout = 1000 * 15) => {
-  while (new Date().getTime() - lastFetchTime < 1000 * 5) {
-    // sleep random 1 - 5 seconds
+  // sleep random 1 - 3 seconds
+  do { 
     await new Promise((r) => {
-      setTimeout(r, Math.random() * 1000 * 5);
+      setTimeout(r, Math.random() * 1000 * 3);
     });
-  }
+  } while(new Date().getTime() - lastFetchTime < 1000 * 3)
   lastFetchTime = new Date().getTime();
 
   const result = await fetchWithCookieWithRetry(cj, url, options, fetchTimeout);
-  // const resultToReturn = result.clone();
-  if (result.url.indexOf("error") !== -1 || (await testCookieExpired(cj))) {
-    if (retry === 10) {
+  if (result.url.indexOf("error") !== -1) {
+    const cookieExpired = await testCookieExpired(cj);
+
+    // For not cookie expired error, retry 2 times
+    if (!cookieExpired && retry === 3) {
       throw new Error("Retry hit max limit.");
     }
 
-    if (result.url.indexOf("error") !== -1) {
-      const text = await result.text();
-      const errroCode = text.match(/<div class="p_5 f_14 ">(.*)<\/div>/)[1];
-      const errorBody = text.match(
-        /<div class="p_5 f_12 gray break">(.*)<\/div>/
-      )[1];
-      console.log("Error url:", result.url);
-      console.log("Error code:", errroCode);
-      console.log("Error body:", errorBody);
+    // For cookie expired error, retry 10 times
+    if (retry === 10) {
+      throw new Error("Retry hit max limit, failed to refresh cookie.");
     }
+
+    const text = await result.text();
+    const errroCode = text.match(/<div class="p_5 f_14 ">(.*)<\/div>/)[1];
+    const errorBody = text.match(
+      /<div class="p_5 f_12 gray break">(.*)<\/div>/
+    )[1];
+    console.log("Error url:", result.url);
+    console.log("Error code:", errroCode);
+    console.log("Error body:", errorBody);
 
     console.log(
       `Fetch error, try to reload cookie and retry. Retry time: ${retry}`
@@ -47,7 +52,7 @@ const fetch = async (cj, url, options, retry = 1, fetchTimeout = 1000 * 15) => {
         await fetch(cj, url, options, retry + 1, fetchTimeout)
           .then(resolve)
           .catch(reject);
-      }, 1000 * 30);
+      }, 1000 * 15);
     });
   }
 
