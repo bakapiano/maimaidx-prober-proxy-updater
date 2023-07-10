@@ -18,7 +18,7 @@ const fetch = async (cj, url, options, retry = 1, fetchTimeout = 1000 * 15) => {
       setTimeout(r, Math.random() * 1000 * 5);
     });
   }
-  lastFetchTime = now;
+  lastFetchTime = new Date().getTime();
 
   const result = await fetchWithCookieWithRetry(cj, url, options, fetchTimeout);
   // const resultToReturn = result.clone();

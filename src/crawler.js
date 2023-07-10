@@ -114,7 +114,7 @@ const updateMaimaiScore = async (
       if (body.match("错误")) {
         throw new Error("登录公众号时出现错误");
       }
-    }, true);
+    });
 
     const diffNameList = [
       "Basic", 
@@ -242,7 +242,7 @@ const updateChunithmScore = async (
       if (loginResult.status === 401) {
         throw new Error("登录 http 请求状态码为 401");
       }
-    }, true);
+    });
 
     const urls = [
       ["/record/musicGenre/sendBasic", "/record/musicGenre/basic"],
