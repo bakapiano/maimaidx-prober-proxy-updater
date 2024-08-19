@@ -107,7 +107,23 @@ const updateMaimaiScore = async (
       });
 
       const result = await fetch(
-        "https://maimai.wahlap.com/maimai-mobile/home/"
+        "https://maimai.wahlap.com/maimai-mobile/home/", {
+          headers: {
+            Host: "tgk-wcaime.wahlap.com",
+            Connection: "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+            Accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-User": "?1",
+            "Sec-Fetch-Dest": "document",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+          },
+        }
       );
       const body = await result.text();
 
@@ -144,7 +160,23 @@ const updateMaimaiScore = async (
         
         await stage(`获取 ${name} 分数`, progress, async () => {
           const result = await fetch(
-            `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${diff}`
+            `https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=${diff}`, {
+              headers: {
+                Host: "tgk-wcaime.wahlap.com",
+                Connection: "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "User-Agent":
+                  "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x6307001e)",
+                Accept:
+                  "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-User": "?1",
+                "Sec-Fetch-Dest": "document",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+              },
+            }
           );
           body = (await result.text())
             .match(/<html.*>([\s\S]*)<\/html>/)[1]
